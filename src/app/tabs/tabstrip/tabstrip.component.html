@@ -1,0 +1,8 @@
+<ng-container *ngFor="let tabItem of this.tabItems$ | async">
+	<input type="radio" [id]="tabItem.key" name="tablist" [value]="tabItem.key" [checked]="tabItem.active" (change)="onClickSwitchTo($event)">
+	<label [for]="tabItem.key" [title]="tabItem.fullTitle">{{tabItem.title}}
+		<button [value]="tabItem.key" title="Close tab" (click)="onClickCloseTab($event)">
+			<svg-icon src="assets/icons/close.svg"></svg-icon>
+		</button>
+	</label>
+</ng-container>

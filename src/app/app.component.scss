@@ -1,0 +1,6 @@
+:host {
+  border-block-start: solid 1px var(--app-default-border-color);   /* So there's a line between the window's menu bar and the content */
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  height: 100vh;
+}

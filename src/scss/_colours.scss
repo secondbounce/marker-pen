@@ -1,0 +1,26 @@
+$dark-grey: #999;
+
+/* HACK ALERT!  Just a quick way to lighten/darken the underlying colour */
+// $color-lighten: #ffffff70;
+$color-darken: #00000030;
+
+:root {
+  --app-default-color: #4d4d4d;
+
+  --app-scrollbar-thumb: #{$dark-grey};
+  --app-scrollbar-track: #dedede;
+
+  --app-form-bg: #fff;
+
+  --app-tabstrip-bg: #f3f3f3;
+  --app-tab-active-color: var(--app-default-color);
+  --app-tab-active-bg: #fff;
+  --app-tab-active-bg-hover: #{$color-darken};
+  --app-tab-inactive-color: var(--app-default-color);
+  --app-tab-inactive-bg: #ececec;
+}
+
+@media (prefers-color-scheme: dark) {
+
+}
+
