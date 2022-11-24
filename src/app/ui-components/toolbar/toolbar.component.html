@@ -1,0 +1,7 @@
+<ng-container *ngFor="let control of this.controls">
+	<ng-container [ngSwitch]="control.type">
+		<app-toolbar-button *ngSwitchCase="ToolbarControlType.Button" [control]="control" (buttonClick)="onControlClick($event)"></app-toolbar-button>
+		<app-toolbar-checkbox *ngSwitchCase="ToolbarControlType.Checkbox" [control]="control" (checkboxChange)="onControlClick($event)"></app-toolbar-checkbox>
+		<app-toolbar-dropdown *ngSwitchCase="ToolbarControlType.Dropdown" [control]="control" (dropdownChange)="onControlClick($event)"></app-toolbar-dropdown>
+	 </ng-container>
+</ng-container>

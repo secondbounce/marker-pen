@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { convertToText } from '~shared/string';
@@ -7,7 +7,14 @@ import { Logger, MarkdownFile } from './core/model';
 import { Channel, MenuCommand } from './enums';
 import { SAMPLE_MARKDOWN } from './sample-constants';
 import { ElectronService, LogService, TabManagerService } from './services';
+import { ToolbarComponent, ToolbarControlResult, ToolbarControlType } from './ui-components/toolbar/toolbar.module';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
+
+const enum ToolbarControlId {
+  OpenDummy = 'open-dummy',
+  SelectCss = 'select-css',
+  Check = 'check'
+}
 
 @Component({
   selector: 'app-root',
@@ -15,7 +22,8 @@ import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  @ViewChild(ToolbarComponent) private _toolbar!: ToolbarComponent;
   private readonly _log: Logger;
 
   constructor(private _electronService: ElectronService,
@@ -31,11 +39,55 @@ export class AppComponent {
     _electronService.on(Channel.MenuCommand, (...args) => this.handleMenuCommand(...args));
   }
 
-// TODO: temporary only for testing in browsers
-  public openTestContent(): void {
-   this.handleMenuCommand(MenuCommand.OpenMarkdown,
-                          'c:\\path\\to\\the\\sample\\markdown.md',
-                          SAMPLE_MARKDOWN);
+  public ngAfterViewInit(): void {
+    /* Use timeout to avoid ExpressionChangedAfterItHasBeenCheckedError */
+    setTimeout(() => {
+      this._toolbar.controls = [
+        {
+          id: ToolbarControlId.OpenDummy,
+          type: ToolbarControlType.Button,
+          tooltip: 'Open dummy markdown for testing',
+          icon: 'assets/icons/close.svg'
+        },
+        {
+          id: ToolbarControlId.SelectCss,
+          type: ToolbarControlType.Dropdown,
+          tooltip: 'Select',
+          selected: '',
+          options: [
+            { id: 'aa', text: 'Alice' },
+            { id: 'bb', text: 'Bob' },
+            { id: 'cc', text: 'Chris' }
+          ]
+        },
+        {
+          id: ToolbarControlId.Check,
+          type: ToolbarControlType.Checkbox,
+          tooltip: 'check box',
+          checked: true,
+          icon: 'assets/icons/close.svg'
+        }
+      ];
+    });
+  }
+
+  public onToolbarControlClick(result: ToolbarControlResult): void {
+    console.log('click:', result);
+    switch (result.id) {
+      case ToolbarControlId.OpenDummy:
+        this.openMarkdownFile('c:\\path\\to\\the\\sample\\markdown.md', SAMPLE_MARKDOWN);
+        break;
+
+      case ToolbarControlId.SelectCss:
+        break;
+
+      case ToolbarControlId.Check:
+        break;
+
+      default:
+        this._log.error(`Unrecognized toolbar control id '${result.id}'`);
+        break;
+    }
   }
 
   private handleMenuCommand = (...args: any[]): void => {

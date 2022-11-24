@@ -9,6 +9,7 @@ import { AngularSvgIconModule } from 'angular-svg-icon';
 import { AppComponent } from './app.component';
 import { TabPanelsModule } from './tabs/tab-panels/tab-panels.module';
 import { TabstripModule } from './tabs/tabstrip/tabstrip.module';
+import { ToolbarModule } from './ui-components/toolbar/toolbar.module';
 import { MarkdownFileModule } from './views/markdown-file/markdown-file.module';
 
 // AoT requires an exported function for factories
@@ -32,7 +33,8 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
     }),
     MarkdownFileModule,
     TabPanelsModule,
-    TabstripModule
+    TabstripModule,
+    ToolbarModule
   ],
   providers: [
   ],

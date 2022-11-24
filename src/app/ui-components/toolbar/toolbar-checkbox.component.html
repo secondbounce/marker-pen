@@ -1,0 +1,4 @@
+<input type="checkbox" id="checkbox" (change)="onCheckboxChange($event)">
+<label for="checkbox" [attr.title]="this.checkbox.tooltip">
+	<svg-icon [src]="this.checkbox.icon || ''" [title]="this.checkbox.tooltip"></svg-icon>
+</label>

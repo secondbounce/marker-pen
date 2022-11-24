@@ -1,0 +1,24 @@
+@import 'variables';
+@import 'colours';
+@import 'mixins';
+
+:host(app-toolbar-checkbox) {
+  position: relative;
+
+  > input,
+  > label {
+    position: absolute;
+  }
+
+  input {   /* Not specifying the type to reduce specificity of rules */
+    appearance: none;
+
+    &:checked + label {
+      background-color: var(--app-button-alt-bg);
+      border-color: var(--app-button-alt-border);
+    }
+  }
+  label {
+    @include image-button;
+  }
+}

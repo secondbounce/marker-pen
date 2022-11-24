@@ -1,0 +1,3 @@
+<select [title]="this.dropdown.tooltip" (change)="onDropdownChange($event)">
+	<option *ngFor="let option of this.dropdown.options" [value]="option.id">{{ option.text }}</option>
+</select>

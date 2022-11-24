@@ -7,6 +7,12 @@ $color-darken: #00000030;
 :root {
   --app-default-color: #4d4d4d;
 
+  --app-button-border: #{$dark-grey};
+  --app-button-alt-border: var(--app-default-color);
+  --app-button-color: var(--app-default-color);
+  --app-button-bg: yellow;
+  --app-button-alt-bg: rgb(228, 228, 1);
+
   --app-scrollbar-thumb: #{$dark-grey};
   --app-scrollbar-track: #dedede;
 
