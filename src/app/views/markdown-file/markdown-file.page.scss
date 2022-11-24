@@ -1,8 +1,18 @@
 :host {
   display: flex;
-  flex-direction: column;
+  overflow: hidden;
 }
 
-app-markdown-editor {
-  flex-grow: 1;
+.markdown,
+iframe {
+  overflow: auto;
+  width: 50%;
+}
+
+.markdown {
+  padding: 1em;
+}
+
+iframe {
+  border: none;
 }

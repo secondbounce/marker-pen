@@ -3,9 +3,9 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
-import { SAMPLE_MARKDOWN } from './constants';
 import { Logger, MarkdownFile } from './core/model';
 import { Channel, MenuCommand } from './enums';
+import { SAMPLE_MARKDOWN } from './sample-constants';
 import { ElectronService, LogService, TabManagerService } from './services';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
 

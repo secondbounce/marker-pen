@@ -1,1 +1,2 @@
-{{ this.data?.contents ?? '' }}
+<div [innerHTML]="this.markdown" class="markdown"></div>
+<iframe [appPreview]="this.html" [css]="this.css"></iframe>
