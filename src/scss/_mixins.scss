@@ -5,6 +5,12 @@
   color: var(--app-button-color);
   display: inline-block;
   padding: 2px 8px;
+
+  &[disabled] {
+    background-color: var(--app-button-disabled-bg);
+    border-color: var(--app-button-disabled-border);
+    color: var(--app-button-disabled-color);
+  }
 }
 
 @mixin image-button() {

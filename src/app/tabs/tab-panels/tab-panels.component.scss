@@ -12,7 +12,7 @@ app-tab-panels {
   overflow: hidden;   // Needed to stop panel covering tabstrip when height is too small
 
   & > * {
-    background: var(--app-form-bg);  // Needed since tab panels are loaded on top of each other
+    background: var(--app-tabpanel-bg);  // Needed since tab panels are loaded on top of each other
     grid-area: tab-panels;
     overflow: auto;
   }

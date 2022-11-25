@@ -2,7 +2,7 @@
 
 :host {
   background: var(--app-tabstrip-bg);
-  border-top: solid 1px var(--app-tabstrip-bg);
+  border-top: solid 1px var(--app-tabstrip-bg);   // Create a 'gap' between tab top and edge of tabstrip
   overflow-x: auto;
   white-space: nowrap;
 

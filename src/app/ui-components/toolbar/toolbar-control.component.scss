@@ -2,6 +2,14 @@
 @import 'colours';
 @import 'mixins';
 
+$toolbar-control-border-radius: 3px;
+
+:host(app-toolbar-button) {
+  button {
+    border-radius: $toolbar-control-border-radius;
+  }
+}
+
 :host(app-toolbar-checkbox) {
   position: relative;
 
@@ -17,8 +25,29 @@
       background-color: var(--app-button-alt-bg);
       border-color: var(--app-button-alt-border);
     }
+    &[disabled] + label {
+      background-color: var(--app-button-disabled-bg);
+      border-color: var(--app-button-disabled-border);
+      color: var(--app-button-disabled-color);
+    }
   }
   label {
     @include image-button;
+    border-radius: $toolbar-control-border-radius;
+  }
+}
+
+:host(app-toolbar-dropdown) {
+  select {
+    background-color: var(--app-select-bg);
+    border-color: var(--app-select-border);
+    border-radius: $toolbar-control-border-radius;
+    color: var(--app-select-color);
+
+    &[disabled] {
+      background-color: var(--app-select-disabled-bg);
+      border-color: var(--app-select-disabled-border);
+      color: var(--app-select-disabled-color);
+    }
   }
 }

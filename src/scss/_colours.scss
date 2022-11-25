@@ -1,29 +1,54 @@
-$dark-grey: #999;
+/* Sass variables to make it easier to understand the colours and keep them consistent.
+  Do not use these for anything other than setting CSS custom variables.
+*/
+$almost-white:  #f3f3f3;
+$lightest-grey: #ececec;
+$light-grey:    #dedede;
+$mid-grey:      #cacaca;
+$dark-grey:     #999;
+$almost-black:  #4d4d4d;
 
-/* HACK ALERT!  Just a quick way to lighten/darken the underlying colour */
-// $color-lighten: #ffffff70;
-$color-darken: #00000030;
+
 
 :root {
-  --app-default-color: #4d4d4d;
+  /* Default CSS custom variables to simplify global changes.
+    If possible, do not use these directly; use the attribute-specific variables.
+  */
+  --app-default-color: #{$almost-black};
+  --app-default-border-color: #{$dark-grey};
+  --app-default-control-panel-bg: #{$lightest-grey};
+  --app-default-pane-bg: white;
 
-  --app-button-border: #{$dark-grey};
-  --app-button-alt-border: var(--app-default-color);
+  /* CSS custom variables for specific attributes */
   --app-button-color: var(--app-default-color);
-  --app-button-bg: yellow;
-  --app-button-alt-bg: rgb(228, 228, 1);
+  --app-button-bg: #{$lightest-grey};
+  --app-button-alt-bg: #{$mid-grey};
+  --app-button-border: var(--app-default-border-color);
+  --app-button-alt-border: var(--app-default-color);
+  --app-button-disabled-color: #{$mid-grey};
+  --app-button-disabled-bg: #{$lightest-grey};
+  --app-button-disabled-border: #{$mid-grey};
+
+  --app-select-color: var(--app-default-color);
+  --app-select-bg: var(--app-default-pane-bg);
+  --app-select-border: var(--app-default-border-color);
+  --app-select-disabled-color: #{$mid-grey};
+  --app-select-disabled-bg: #{$lightest-grey};
+  --app-select-disabled-border: #{$mid-grey};
 
   --app-scrollbar-thumb: #{$dark-grey};
-  --app-scrollbar-track: #dedede;
+  --app-scrollbar-track: #{$lightest-grey};
 
-  --app-form-bg: #fff;
+  --app-toolbar-bg: var(--app-default-control-panel-bg);
+  --app-toolbar-border: var(--app-default-border-color);
 
-  --app-tabstrip-bg: #f3f3f3;
+  --app-tabstrip-bg: var(--app-default-control-panel-bg);
   --app-tab-active-color: var(--app-default-color);
-  --app-tab-active-bg: #fff;
-  --app-tab-active-bg-hover: #{$color-darken};
+  --app-tab-active-bg: var(--app-default-pane-bg);
+  --app-tab-active-bg-hover: #{$mid-grey};
   --app-tab-inactive-color: var(--app-default-color);
-  --app-tab-inactive-bg: #ececec;
+  --app-tab-inactive-bg: #{$light-grey};
+  --app-tabpanel-bg: var(--app-default-pane-bg);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,4 +1,7 @@
 :host {
+  background-color: var(--app-toolbar-bg);
+  border-block-end: solid 1px var(--app-toolbar-border);
   display: flex;
-  gap: 0.25em;
+  gap: 2px;
+  padding: 3px;
 }
