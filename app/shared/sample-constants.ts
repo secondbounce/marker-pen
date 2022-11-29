@@ -14,6 +14,9 @@ First thing is first. You can use *stars* or _underscores_ for italics. **Double
 
 Paragraphs are pretty easy too. Just have a blank line between chunks of text.
 
+Alternatively, you can suffix a line with two spaces to add a \`<br>\` HTML tag instead.
+Block quotes are simply prefixed with a \`>\` character:
+
 > This chunk of text is in a block quote. Its multiple lines will all be
 > indented a bit from the rest of the text.
 >
@@ -183,13 +186,4 @@ If markdown is too limiting, you can just insert your own <strike>crazy</strike>
 It is a pity, but markdown does **not** work in here for most markdown parsers.
 [Marked] handles it pretty well.
 </div>
-`;
-
-export const SAMPLE_CSS: string = `
-h1 {
-  color: red;
-}
-</style>
-<meta name="author" content="Unwanted content">
-<style>
 `;

@@ -49,10 +49,19 @@ export class ToolbarComponent {
           state.value = (control as ToolbarCheckbox).checked;
           break;
 
-        case ToolbarControlType.Dropdown:
-          state.value = (control as ToolbarDropdown).selected;
-          break;
+        case ToolbarControlType.Dropdown: {
+          const dropdown: ToolbarDropdown = control as ToolbarDropdown;
+          let value: string = dropdown.selected;
 
+          if (value.length === 0 && dropdown.options && dropdown.options.length > 0) {
+            /* SELECT element will show first option as selected, so set it explicitly */
+            value = dropdown.options[0].id;
+            dropdown.selected = value;
+          }
+
+          state.value = value;
+          break;
+        }
         default:
           this._log.assert(control.type === ToolbarControlType.Button,
                            `Unrecognized toolbar control type - ${control.type}`);

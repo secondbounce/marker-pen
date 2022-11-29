@@ -1,19 +1,19 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
+import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
-import { Logger, MarkdownFile } from './core/model';
-import { Channel, MenuCommand } from './enums';
-import { SAMPLE_MARKDOWN } from './sample-constants';
-import { ElectronService, LogService, TabManagerService } from './services';
+import { Logger, MarkdownFile, Stylesheet } from './core/model';
+import { Channel, MenuCommand, MessageType, RendererRequest } from './enums';
+import { ElectronService, LogService, MessageService, TabManagerService } from './services';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControlType } from './ui-components/toolbar/toolbar.module';
+import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
 
 const enum ToolbarControlId {
   OpenDummy = 'open-dummy',
-  SelectCss = 'select-css',
-  Check = 'check'
+  Stylesheets = 'stylesheets'
 }
 
 @Component({
@@ -24,10 +24,12 @@ const enum ToolbarControlId {
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild(ToolbarComponent) private _toolbar!: ToolbarComponent;
+  private _currentStylesheet: string = '';
   private readonly _log: Logger;
 
   constructor(private _electronService: ElectronService,
               private _tabManagerService: TabManagerService,
+              messageService: MessageService,
               translateService: TranslateService,
               logService: LogService) {
     this._log = logService.getLogger('AppComponent');
@@ -37,51 +39,51 @@ export class AppComponent implements AfterViewInit {
     translateService.setDefaultLang('en');
 
     _electronService.on(Channel.MenuCommand, (...args) => this.handleMenuCommand(...args));
+    messageService.onSend(this.handleSend);
+    messageService.onRequest(this.handleRequest);
   }
 
   public ngAfterViewInit(): void {
-    /* Use timeout to avoid ExpressionChangedAfterItHasBeenCheckedError */
-    setTimeout(() => {
-      this._toolbar.controls = [
+    this._electronService.emitRendererRequest(RendererRequest.GetAvailableStylesheets)
+                         .then((stylesheets: string[]) => {
+                            const options: any[] = [];
+
+                            stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
+                                                                             text: getFilenameFromPath(stylesheet)
+                                                                           }
+                                                ));
+
+// TODO: get 'active' stylesheet from last session if saved somewhere?
+                            this._log.assert(stylesheets.length > 0,
+                                             'RendererRequest.GetAvailableStylesheets returned no stylesheets');
+                            this._currentStylesheet = stylesheets[0];
+
+                            this._toolbar.controls = [
         {
           id: ToolbarControlId.OpenDummy,
           type: ToolbarControlType.Button,
           tooltip: 'Open dummy markdown for testing',
           icon: 'assets/icons/close.svg'
         },
-        {
-          id: ToolbarControlId.SelectCss,
-          type: ToolbarControlType.Dropdown,
-          tooltip: 'Select',
-          selected: '',
-          options: [
-            { id: 'aa', text: 'Alice' },
-            { id: 'bb', text: 'Bob' },
-            { id: 'cc', text: 'Chris' }
-          ]
-        },
-        {
-          id: ToolbarControlId.Check,
-          type: ToolbarControlType.Checkbox,
-          tooltip: 'check box',
-          checked: true,
-          icon: 'assets/icons/close.svg'
-        }
-      ];
-    });
+                              {
+                                id: ToolbarControlId.Stylesheets,
+                                type: ToolbarControlType.Dropdown,
+                                tooltip: 'Stylesheets',
+                                selected: this._currentStylesheet,
+                                options
+                              }
+                            ];
+                          });
   }
 
   public onToolbarControlClick(result: ToolbarControlResult): void {
-    console.log('click:', result);
     switch (result.id) {
       case ToolbarControlId.OpenDummy:
         this.openMarkdownFile('c:\\path\\to\\the\\sample\\markdown.md', SAMPLE_MARKDOWN);
         break;
 
-      case ToolbarControlId.SelectCss:
-        break;
-
-      case ToolbarControlId.Check:
+      case ToolbarControlId.Stylesheets:
+        this._currentStylesheet = result.value as string;
         break;
 
       default:
@@ -100,7 +102,7 @@ export class AppComponent implements AfterViewInit {
         break;
       }
       default:
-        this._log.error(`Unsupported MenuCommand - ${convertToText(menuCommand)}`);
+        this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
         break;
     }
   };
@@ -112,4 +114,54 @@ export class AppComponent implements AfterViewInit {
     };
     this._tabManagerService.open(MarkdownFilePage, data);
   }
+
+  private handleSend = (...args: any[]): void => {
+    const message: MessageType = args[0];
+
+    switch (message) {
+      case MessageType.SetActiveStylesheet: {
+        const [, stylesheet] = args;
+
+        this._toolbar.state = {
+          [ToolbarControlId.Stylesheets]: {
+            id: ToolbarControlId.Stylesheets,
+            value: stylesheet,
+            enabled: true
+          }
+        };
+        break;
+      }
+      default:
+        this._log.error(`Unsupported MessageType - ${message}`);
+        break;
+    }
+  };
+
+  private handleRequest = async (...args: any[]): Promise<any> => {
+    const message: MessageType = args[0];
+
+    switch (message) {
+      case MessageType.GetStylesheet: {
+// TODO: look up last stylesheet used for this file (for now, just use current)
+        // const [, filePath] = args;
+        const stylesheet: Stylesheet = {
+          filepath: this._currentStylesheet,
+          css: ''
+        };
+        const css: any = await this._electronService.emitRendererRequest(RendererRequest.GetStylesheet,
+                                                                         stylesheet);
+        if (typeof (css) === 'string') {
+          stylesheet.css = css;
+        }
+
+        return stylesheet;
+      }
+      default: {
+        const error: string = `Unsupported MessageType - ${convertToText(args)}`;
+        this._log.error(error);
+// TODO: need to display the error message somehow
+        return Promise.reject(new Error(error));
+      }
+    }
+  };
 }

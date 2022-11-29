@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { Logger, MarkdownFile } from 'src/app/core/model';
-import { SAMPLE_CSS } from 'src/app/sample-constants';
-import { ConverterService, LogService } from 'src/app/services';
+import { ConverterService, LogService, StylesheetService } from 'src/app/services';
 import { TabPanelComponent } from 'src/app/tabs';
+import { getFilenameFromPath } from 'src/app/utility';
 
 @Component({
   selector: 'app-markdown-file',
@@ -15,10 +15,13 @@ import { TabPanelComponent } from 'src/app/tabs';
 export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
   public markdown: SafeHtml = '';
   public html: string = '';
-  public css: string = SAMPLE_CSS;
+  public css: string = '';
+  private _filePath: string | undefined;
+  private _stylesheet: string | undefined;
   private readonly _log: Logger;
 
   constructor(private _converterService: ConverterService,
+              private _stylesheetService: StylesheetService,
               logService: LogService) {
     super();
 
@@ -35,14 +38,35 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
   public setData(data: MarkdownFile): void {
     super.setData(data);
 
-// TODO: suffix with index of new files
-    const parts: string[] = data.filepath.split(/[\\/]/);
-    const title: string = data.filepath.length > 0 ? parts[parts.length - 1] : 'Untitled';
-    const fullTitle: string = data.filepath.length > 0 ? data.filepath : 'Untitled';
-
-    this.setTitle(title, fullTitle);
-
+    this._filePath = data.filepath;
     this.markdown = this._converterService.plaintextToSafeHtml(data.contents, true);
     this.html = this._converterService.markdownToHtml(data.contents);
+
+// TODO: suffix with index of new files
+// TODO: make sure this works for new files (what will be passed as the filepath?)
+    const title: string = getFilenameFromPath(this._filePath) ?? 'Untitled';
+    const fullTitle: string = this._filePath.length > 0 ? this._filePath : 'Untitled';
+
+    this.setTitle(title, fullTitle);
+  }
+
+  public set active(active: boolean) {
+    super.active = active;
+
+    if (active) {
+      if (this._stylesheet) {
+        /* The stylesheet has been set previously, so we need to make sure the toolbar is updated
+          to show it (since the previously active file may have used a different one).
+        */
+        this._stylesheetService.setActiveStylesheet(this._stylesheet);
+      } else {
+        /* We need to know what stylesheet/CSS to use, which will be whatever the toolbar is set to */
+        this._stylesheetService.getStylesheet(this._filePath)
+                               .then(data => {
+                                  this._stylesheet = data.filepath;
+                                  this.css = data.css;
+                                });
+      }
+    }
   }
 }

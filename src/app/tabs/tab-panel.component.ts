@@ -6,11 +6,11 @@ import { FormComponent } from '../ui-components';
 @Directive()
 export abstract class TabPanelComponent<TData> extends FormComponent implements OnDestroy {
   public titles$: Observable<[string, string]>;
-  public active: boolean = false;
   private _titles$: ReplaySubject<[string, string]> = new ReplaySubject<[string, string]>(1);
   private _title: string = '';
   private _fullTitle: string = '';
   private _data: TData | undefined;
+  private _active: boolean = false;
 
   constructor() {
     super();
@@ -22,6 +22,13 @@ export abstract class TabPanelComponent<TData> extends FormComponent implements 
     super.ngOnDestroy();
 
     this._titles$.complete();
+  }
+
+  public get active(): boolean {
+    return this._active;
+  }
+  public set active(active: boolean) {
+    this._active = active;
   }
 
   /**

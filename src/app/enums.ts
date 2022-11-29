@@ -6,6 +6,7 @@ export const enum AriaRole {
 export const enum Channel {
   AppInfo = 'app-info',
   MenuCommand = 'menu-command',
+  RendererRequest = 'renderer-request',
   RendererEvent = 'renderer-event'
 }
 
@@ -20,6 +21,16 @@ export const enum MenuId {
     FileExit = 'file_exit',
   Edit = 'edit',
   Application = 'application'
+}
+
+export const enum MessageType {
+  GetStylesheet = 'get-stylesheet',
+  SetActiveStylesheet = 'set-stylesheet'
+}
+
+export const enum RendererRequest {
+  GetAvailableStylesheets = 'get-stylesheets',
+  GetStylesheet = 'get-stylesheet'
 }
 
 export const enum RendererEvent {

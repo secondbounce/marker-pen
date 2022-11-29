@@ -1,0 +1,86 @@
+/* Default CSS Styles
+
+Don't edit this file as it may be overwritten when installing upgrades.  Instead, copy it to
+another folder and 'register' it (HOW?????????????).
+
+TIPS
+* If you're aiming to print to PDF (or hardcopy), use physical sizes - points, mm, etc - rather
+  than pixel-based sizes to be sure the output looks right.
+* Markdown can contain embedded HTML; this is rendered as-is, so you will need to add styles for
+  any additional element types that aren't already generated from the markdown.
+*/
+
+:root {
+  /* These font stacks should provide good default fonts for Windows, Mac and Linux, but can
+    obviously be changed to any preferred font on your system.
+  */
+  --sans-serif-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  --serif-family: Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  --mono-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+}
+
+body {
+  font-family: var(--sans-serif-family);
+  font-size: 12pt;
+  margin: 0;  /* Important, page margin will be applied externally if/when printed */
+}
+
+/* HEADERS
+*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+}
+
+/* PARAGRAPHS */
+p {
+}
+
+br {
+}
+
+/* BLOCK QUOTES */
+blockquote {
+}
+
+/* CODE BLOCKS
+
+      code[class="language-javascript"]
+*/
+pre,
+code {
+  font-family: var(--mono-family);
+}
+
+/* LISTS */
+ul {
+}
+
+ol {
+}
+
+li {
+}
+
+/* HORIZONTAL RULES */
+hr {
+}
+
+/* LINKS */
+a {
+}
+
+/* a[href="https:"]   // needs to be 'starts with' */
+/* a[href="mailto:"]   // needs to be 'starts with' */
+
+/* IMAGES */
+img {
+}
+
+/* EMPHASIS */
+em,
+strong {
+}

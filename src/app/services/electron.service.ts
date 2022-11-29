@@ -8,7 +8,7 @@ import { ipcRenderer, webFrame } from 'electron';
 
 import { AppInfo } from '~shared/app-info';
 import { Logger } from '../core/model';
-import { Channel, RendererEvent } from '../enums';
+import { Channel, RendererEvent, RendererRequest } from '../enums';
 import { isElectron } from '../utility';
 import { LogService } from './log.service';
 
@@ -72,6 +72,11 @@ export class ElectronService {
 
   public on(channel: Channel, listener: (...args: any[]) => void): void {
     this._ipcRenderer?.on(channel, (_event, ...args) => listener(...args));
+  }
+
+  public emitRendererRequest(request: RendererRequest, ...args: any[]): Promise<any> {
+    return this._ipcRenderer? this._ipcRenderer.invoke(Channel.RendererRequest, request, ...args)
+                            : Promise.reject(new Error('IpcRenderer has not been instantiated'));
   }
 
   public emitRendererEvent(event: RendererEvent, ...args: any[]): void {

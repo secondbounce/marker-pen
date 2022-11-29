@@ -6,11 +6,12 @@ import log from 'electron-log';
 // import reloader from 'electron-reloader';
 
 import { RecentItem } from '../src/app/core/model';
-import { Channel, MenuCommand, MenuId, RendererEvent } from '../src/app/enums';
+import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from '../src/app/enums';
 import { ElectronEvent } from './enums';
 import { Logger } from './logger';
 import { MenuStateService } from './services/menu-state.service';
 import { RecentlyOpenedService } from './services/recently-opened.service';
+import { StylesheetService } from './services/stylesheet.service';
 import { AppInfo } from './shared/app-info';
 import { configureLogging } from './shared/log-config';
 import { convertToText } from './shared/string';
@@ -20,6 +21,7 @@ export class Application {
   private _mainWindow: BrowserWindow | undefined;
   private _menuStateService: MenuStateService = MenuStateService.instance;
   private _recentlyOpenedService: RecentlyOpenedService = RecentlyOpenedService.instance;
+  private _stylesheetService: StylesheetService;
   private _debugMode: boolean;
   private _appInfo: AppInfo;
   private readonly _log: Logger;
@@ -33,6 +35,7 @@ export class Application {
     this._appInfo = {
       appName: _electronApp.getName()
     };
+    this._stylesheetService = StylesheetService.instance(_electronApp.getPath('userData'));
 
     _electronApp.on(ElectronEvent.Activate, this.onElectronActivate);
     _electronApp.on(ElectronEvent.WindowAllClosed, this.onElectronWindowAllClosed);
@@ -41,6 +44,7 @@ export class Application {
   public initialize(): void {
     this.createMainWindow();
 
+    ipcMain.handle(Channel.RendererRequest, (_event, ...args) => this.handleRendererRequest(...args));
     ipcMain.on(Channel.RendererEvent, (_event, ...args) => this.handleRendererEvent(...args));
   }
 
@@ -243,6 +247,36 @@ export class Application {
     if (this._mainWindow) {
       this._mainWindow.webContents.send(Channel.MenuCommand, menuCommand, ...args);
     }
+  }
+
+  private handleRendererRequest = (...args: any[]): Promise<any> => {
+    const request: RendererRequest = args[0];
+
+    switch (request) {
+      case RendererRequest.GetAvailableStylesheets:
+        return this.getAvailableStylesheets();
+
+      case RendererRequest.GetStylesheet: {
+        const [, filepath] = args;
+        return this.getStylesheet(filepath);
+      }
+      default: {
+        const message: string = `Unsupported RendererRequest - ${convertToText(args)}`;
+        this._log.error(message);
+// TODO: need to display the error message somehow
+        return Promise.reject(new Error(message));
+      }
+    }
+  };
+
+  private getAvailableStylesheets(): Promise<string[]> {
+    const stylesheets: string[] = this._stylesheetService.getStylesheets();
+    return Promise.resolve(stylesheets);
+  }
+
+  private getStylesheet(filepath: string): Promise<string> {
+    const stylesheet: string = this._stylesheetService.getStylesheet(filepath);
+    return Promise.resolve(stylesheet);
   }
 
   private handleRendererEvent = (...args: any[]): void => {
