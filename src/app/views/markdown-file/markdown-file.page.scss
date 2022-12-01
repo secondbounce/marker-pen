@@ -4,13 +4,13 @@
 }
 
 .markdown,
-iframe {
-  overflow: auto;
-  padding: 1em;
+app-preview {
   width: 50%;
 }
 
-
-iframe {
-  border: none;
+.markdown {
+  overflow: auto;
+  padding: 1em;
 }
+
+

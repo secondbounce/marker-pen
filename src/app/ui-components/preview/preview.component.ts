@@ -1,23 +1,49 @@
-import { Directive, ElementRef, Input } from '@angular/core';
+import { AfterContentChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild } from '@angular/core';
 
-import { Logger } from 'app/logger';
+import { Logger } from 'src/app/core/model';
 import { LogService } from 'src/app/services';
 
-@Directive({
-  selector: 'iframe[appPreview]',
-  standalone: true
+const SCREEN_CSS: string = `
+@media screen {
+  body {
+    margin: 1em;
+  }
+}
+`;
+
+@Component({
+  selector: 'app-preview',
+  template: '<iframe #iframe></iframe>',
+  styleUrls: ['./preview.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  providers: [
+    LogService
+  ]
 })
-export class PreviewDirective {
-  private _iframe: HTMLIFrameElement;
+export class PreviewComponent implements AfterContentChecked, AfterViewInit {
+  @ViewChild('iframe') private _elementRef?: ElementRef;
+  private _iframe?: HTMLIFrameElement;
   private _html: string = '';
   private _css: string = '';
   private readonly _log: Logger;
 
-  constructor(private _elementRef: ElementRef,
-              logService: LogService) {
-    this._log = logService.getLogger('MarkdownFilePage');
+  constructor(logService: LogService) {
+    this._log = logService.getLogger('PreviewComponent');
+  }
 
-    this._iframe = _elementRef.nativeElement;
+  /* IFRAMEs don't appear to retain their content if the parent view container is detached/reattached
+    so we need to hook into this event to refresh the content (AfterContentChecked and
+    AfterViewChecked are the only events raised when it's reattached).
+  */
+  public ngAfterContentChecked(): void {
+    this.refreshPreview();
+  }
+
+  public ngAfterViewInit(): void {
+    if (this._elementRef) {
+      this._iframe = this._elementRef.nativeElement;
+    }
   }
 
   /**
@@ -27,10 +53,10 @@ export class PreviewDirective {
    * sanitized to remove any unsafe elements.
    */
   @Input()
-  public get appPreview(): string {
+  public get html(): string {
     return this._html;
   }
-  public set appPreview(html: string) {
+  public set html(html: string) {
     this._html = html;
     this.refreshPreview();
   }
@@ -45,8 +71,7 @@ export class PreviewDirective {
   }
 
   private refreshPreview(): void {
-    if (this._html.length > 0 && this._css.length > 0) {
-
+    if (this._iframe && this._html.length > 0 && this._css.length > 0) {
       /* Binding in the template to the IFRAME's `srcdoc` property doesn't work as the HEAD element
         is ignored (see https://stackoverflow.com/q/38457662/4591974), so we have to adopt this
         approach.
@@ -68,7 +93,10 @@ export class PreviewDirective {
                                             .item(0);
 
     if (head !== null) {
-      const css: string = '<style>' + this._css + '</style>';
+      const css: string = '<style>'
+                        + this._css
+                        + SCREEN_CSS
+                        + '</style>';
       const cssFragment: DocumentFragment = document.createRange()
                                                     .createContextualFragment(css);
 
