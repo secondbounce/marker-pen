@@ -24,7 +24,6 @@ export const enum MenuId {
 }
 
 export const enum MessageType {
-  GetStylesheet = 'get-stylesheet',
   SetActiveStylesheet = 'set-stylesheet'
 }
 

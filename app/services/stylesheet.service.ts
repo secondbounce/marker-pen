@@ -16,11 +16,9 @@ export class StylesheetService {
   constructor(private _userDataFolder: string) {
     this._log = new Logger('StylesheetService');
     this._configService = ConfigService.instance;
-    this._stylesheets = this._configService.getStylesheets();
 
-    if (this._stylesheets.length === 0) {
-      this._stylesheets.push(DEFAULT_STYLESHEET);
-    }
+    this._stylesheets = this._configService.getStylesheets();
+    this._stylesheets.unshift(DEFAULT_STYLESHEET);
   }
 
   public static instance(userDataFolder: string): StylesheetService {

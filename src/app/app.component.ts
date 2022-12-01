@@ -4,9 +4,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
-import { Logger, MarkdownFile, Stylesheet } from './core/model';
-import { Channel, MenuCommand, MessageType, RendererRequest } from './enums';
-import { ElectronService, LogService, MessageService, TabManagerService } from './services';
+import { Logger, MarkdownFile } from './core/model';
+import { Channel, MenuCommand, MessageType } from './enums';
+import { ElectronService, LogService, MessageService, StylesheetService, TabManagerService } from './services';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControlType } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
@@ -24,11 +24,11 @@ const enum ToolbarControlId {
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild(ToolbarComponent) private _toolbar!: ToolbarComponent;
-  private _currentStylesheet: string = '';
   private readonly _log: Logger;
 
   constructor(private _electronService: ElectronService,
               private _tabManagerService: TabManagerService,
+              private _stylesheetService: StylesheetService,
               messageService: MessageService,
               translateService: TranslateService,
               logService: LogService) {
@@ -44,46 +44,44 @@ export class AppComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
-    this._electronService.emitRendererRequest(RendererRequest.GetAvailableStylesheets)
-                         .then((stylesheets: string[]) => {
-                            const options: any[] = [];
+    this._stylesheetService.getAvailableStylesheets()
+                           .then((stylesheets: string[]) => {
+                              const options: any[] = [];
 
-                            stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
-                                                                             text: getFilenameFromPath(stylesheet)
-                                                                           }
-                                                ));
+                              stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
+                                                                              text: getFilenameFromPath(stylesheet)
+                                                                            }
+                                                  ));
 
-// TODO: get 'active' stylesheet from last session if saved somewhere?
-                            this._log.assert(stylesheets.length > 0,
-                                             'RendererRequest.GetAvailableStylesheets returned no stylesheets');
-                            this._currentStylesheet = stylesheets[0];
-
-                            this._toolbar.controls = [
-        {
-          id: ToolbarControlId.OpenDummy,
-          type: ToolbarControlType.Button,
-          tooltip: 'Open dummy markdown for testing',
-          icon: 'assets/icons/close.svg'
-        },
-                              {
-                                id: ToolbarControlId.Stylesheets,
-                                type: ToolbarControlType.Dropdown,
-                                tooltip: 'Stylesheets',
-                                selected: this._currentStylesheet,
-                                options
-                              }
-                            ];
-                          });
+                              this._toolbar.controls = [
+// TODO: remove (or make it a conditional compilation thing???)
+                                {
+                                  id: ToolbarControlId.OpenDummy,
+                                  type: ToolbarControlType.Button,
+                                  tooltip: 'Open dummy markdown for testing',
+                                  icon: 'assets/icons/close.svg'
+                                },
+// END-TODO
+                                {
+                                  id: ToolbarControlId.Stylesheets,
+                                  type: ToolbarControlType.Dropdown,
+                                  tooltip: 'Stylesheets',
+                                  selected: this._stylesheetService.activeStylesheet,
+                                  options
+                                }
+                              ];
+                            });
   }
 
   public onToolbarControlClick(result: ToolbarControlResult): void {
     switch (result.id) {
-      case ToolbarControlId.OpenDummy:
-        this.openMarkdownFile('c:\\path\\to\\the\\sample\\markdown.md', SAMPLE_MARKDOWN);
+      case ToolbarControlId.OpenDummy: {
+        const id: number = Date.now();
+        this.openMarkdownFile(`c:\\path\\to\\the\\sample\\${id}.md`, id.toString() + '\n\n' + SAMPLE_MARKDOWN);
         break;
-
+      }
       case ToolbarControlId.Stylesheets:
-        this._currentStylesheet = result.value as string;
+        this._stylesheetService.activeStylesheet = result.value as string;
         break;
 
       default:
@@ -122,13 +120,7 @@ export class AppComponent implements AfterViewInit {
       case MessageType.SetActiveStylesheet: {
         const [, stylesheet] = args;
 
-        this._toolbar.state = {
-          [ToolbarControlId.Stylesheets]: {
-            id: ToolbarControlId.Stylesheets,
-            value: stylesheet,
-            enabled: true
-          }
-        };
+        this.handleSetActiveStylesheet(stylesheet);
         break;
       }
       default:
@@ -137,25 +129,25 @@ export class AppComponent implements AfterViewInit {
     }
   };
 
+  private handleSetActiveStylesheet(stylesheet: string): void {
+    const currentStylesheet: string = this._toolbar.state[ToolbarControlId.Stylesheets].value as string;
+
+    if (stylesheet !== currentStylesheet) {
+      this._toolbar.state = {
+        [ToolbarControlId.Stylesheets]: {
+          id: ToolbarControlId.Stylesheets,
+          value: stylesheet,
+          enabled: true
+        }
+      };
+    }
+  }
+
+// TODO: currently unused
   private handleRequest = async (...args: any[]): Promise<any> => {
     const message: MessageType = args[0];
 
     switch (message) {
-      case MessageType.GetStylesheet: {
-// TODO: look up last stylesheet used for this file (for now, just use current)
-        // const [, filePath] = args;
-        const stylesheet: Stylesheet = {
-          filepath: this._currentStylesheet,
-          css: ''
-        };
-        const css: any = await this._electronService.emitRendererRequest(RendererRequest.GetStylesheet,
-                                                                         stylesheet);
-        if (typeof (css) === 'string') {
-          stylesheet.css = css;
-        }
-
-        return stylesheet;
-      }
       default: {
         const error: string = `Unsupported MessageType - ${convertToText(args)}`;
         this._log.error(error);

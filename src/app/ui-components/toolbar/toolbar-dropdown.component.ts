@@ -29,7 +29,7 @@ export class ToolbarDropdownComponent {
     }
   }
 
-  public onDropdownChange($event: Event): void {
+  public onDropdownClick($event: Event): void {
     const select: HTMLSelectElement = $event.target as HTMLSelectElement;
 
     this.dropdownChange.emit({

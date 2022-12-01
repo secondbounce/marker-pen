@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
+import { takeUntil } from 'rxjs';
 
 import { Logger, MarkdownFile } from 'src/app/core/model';
 import { ConverterService, LogService, StylesheetService } from 'src/app/services';
@@ -26,13 +27,8 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
     super();
 
     this._log = logService.getLogger('MarkdownFilePage');
-    // this.setData({
-    //   serverAlias: '',
-    //   dbName: '',
-    //   includeDocs: false,
-    //   includeRevs: false,
-    //   exportAsJson: true
-    // });
+    _stylesheetService.activeStylesheetChanged.pipe(takeUntil(this.isBeingDestroyed$))
+                                              .subscribe(stylesheet => this.onActiveStylesheetChanged(stylesheet));
   }
 
   public setData(data: MarkdownFile): void {
@@ -44,7 +40,7 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
 
 // TODO: suffix with index of new files
 // TODO: make sure this works for new files (what will be passed as the filepath?)
-    const title: string = getFilenameFromPath(this._filePath) ?? 'Untitled';
+    const title: string = getFilenameFromPath(this._filePath, true) ?? 'Untitled';
     const fullTitle: string = this._filePath.length > 0 ? this._filePath : 'Untitled';
 
     this.setTitle(title, fullTitle);
@@ -55,18 +51,29 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
 
     if (active) {
       if (this._stylesheet) {
-        /* The stylesheet has been set previously, so we need to make sure the toolbar is updated
-          to show it (since the previously active file may have used a different one).
+        /* The stylesheet has been set previously, i.e. the tab has been reactivated, so we need to
+          make sure the toolbar is updated to show it (since the previously active file may have
+          used a different one).
         */
-        this._stylesheetService.setActiveStylesheet(this._stylesheet);
+        this._stylesheetService.activeStylesheet = this._stylesheet;
       } else {
         /* We need to know what stylesheet/CSS to use, which will be whatever the toolbar is set to */
-        this._stylesheetService.getStylesheet(this._filePath)
+        this._stylesheetService.getLastUsedStylesheet(this._filePath)
                                .then(data => {
                                   this._stylesheet = data.filepath;
                                   this.css = data.css;
                                 });
       }
+    }
+  }
+
+  private onActiveStylesheetChanged(stylesheet: string): void {
+    if (super.active && stylesheet !== this._stylesheet) {
+      this._stylesheetService.getStylesheet(stylesheet)
+                             .then(data => {
+                                this._stylesheet = data.filepath;
+                                this.css = data.css;
+                              });
     }
   }
 }

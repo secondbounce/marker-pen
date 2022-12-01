@@ -89,10 +89,11 @@ export class ToolbarComponent {
   }
 
   public onControlClick(result: ToolbarControlResult): void {
-    this.controlClick.emit(result);
-
+    /* Update the toolbar state *before* we emit the event */
     const state: ToolbarControlState = this._state[result.id];
     state.value = result.value;
+
+    this.controlClick.emit(result);
   }
 
   private updateControlStates(): void {
