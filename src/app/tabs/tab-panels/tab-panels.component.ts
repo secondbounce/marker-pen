@@ -16,10 +16,10 @@ export class TabPanelsComponent implements OnDestroy {
   @ViewChild(TabPanelsDirective, {static: true}) private _tabPanelHost!: TabPanelsDirective;
   private _componentRefs: Map<string, ComponentRef<TabPanelComponent<any>>> = new Map<string, ComponentRef<TabPanelComponent<any>>>();
 
-  constructor(private _tabManagerService: TabManagerService) {
-    _tabManagerService.registerOpenTabHandler(this.openTab);
-    _tabManagerService.registerSwitchToTabHandler(this.switchToTab);
-    _tabManagerService.registerCloseTabHandler(this.closeTab);
+  constructor(tabManagerService: TabManagerService) {
+    tabManagerService.registerOpenTabHandler(this.openTab);
+    tabManagerService.registerSwitchToTabHandler(this.switchToTab);
+    tabManagerService.registerCloseTabHandler(this.closeTab);
   }
 
   public ngOnDestroy(): void {
@@ -32,7 +32,7 @@ export class TabPanelsComponent implements OnDestroy {
     const componentRef: ComponentRef<TabPanelComponent<any>> = viewContainerRef.createComponent<TabPanelComponent<any>>(tabPanel.component);
     componentRef.instance.setData(tabPanel.data);
     this._componentRefs.set(tabPanel.key, componentRef);
-    this.markActiveTab(tabPanel.key);
+    this.setActiveTab(componentRef);
 
     return componentRef.instance.titles$;
   };
@@ -41,7 +41,7 @@ export class TabPanelsComponent implements OnDestroy {
     const componentRef: ComponentRef<TabPanelComponent<any>> | undefined = this._componentRefs.get(key);
 
     if (componentRef) {
-      this.markActiveTab(key);
+      this.setActiveTab(componentRef);
     }
   };
 
@@ -60,9 +60,28 @@ export class TabPanelsComponent implements OnDestroy {
     }
   };
 
-  private markActiveTab(activeKey: string): void {
-    for (const [key, componentRef] of this._componentRefs) {
-      componentRef.instance.active = (key === activeKey);
+  private setActiveTab(componentRef: ComponentRef<TabPanelComponent<any>>): void {
+    const viewContainerRef: ViewContainerRef = this._tabPanelHost.viewContainerRef;
+
+    /* First, set each tab panel to 'inactive' (so they won't respond to state changes, etc).  This
+      avoids the possibility of two panels both being flagged as 'active' at the same time.
+    */
+    for (const [, ref] of this._componentRefs) {
+      ref.instance.active = false;
     }
+
+    /* Then, make sure the tab to be activated is attached so we don't get any FOIC.
+      FYI, if the tab has just been opened, it will already be in ViewContainerRef,
+      so insert() appears to just move it.
+    */
+    viewContainerRef.insert(componentRef.hostView, 0);
+
+    /* Now we can detach all the others (though there should only be one other) */
+    for (let i: number = viewContainerRef.length - 1; i > 0; i--) {
+      viewContainerRef.detach(i);
+    }
+
+    /* And finally, set the active tab panel as 'active' */
+    componentRef.instance.active = true;
   }
 }

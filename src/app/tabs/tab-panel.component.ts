@@ -1,4 +1,4 @@
-import { Directive, HostBinding, OnDestroy } from '@angular/core';
+import { Directive, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 
 import { FormComponent } from '../ui-components';
@@ -29,15 +29,6 @@ export abstract class TabPanelComponent<TData> extends FormComponent implements 
   }
   public set active(active: boolean) {
     this._active = active;
-  }
-
-  /**
-   * We want to flag *inactive* tabs with the class name, so need a property that inverts
-   * the 'real' property (hence this one is private).
-   */
-  @HostBinding('class.inactive-tab')
-  private get inactive(): boolean {
-    return !this.active;
   }
 
   public get title(): string {
