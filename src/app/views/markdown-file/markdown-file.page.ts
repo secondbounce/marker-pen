@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs';
 
 import { Logger, MarkdownFile } from 'src/app/core/model';
-import { ConverterService, LogService, StylesheetService } from 'src/app/services';
+import { MenuCommand, RendererEvent } from 'src/app/enums';
+import { ConverterService, ElectronService, LogService, StylesheetService } from 'src/app/services';
 import { TabPanelComponent } from 'src/app/tabs';
+import { PreviewComponent } from 'src/app/ui-components/preview/preview.component';
 import { getFilenameFromPath } from 'src/app/utility';
 
 @Component({
@@ -17,18 +19,40 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
   public markdown: SafeHtml = '';
   public html: string = '';
   public css: string = '';
+  @ViewChild(PreviewComponent) private _preview!: PreviewComponent;
   private _filePath: string | undefined;
   private _stylesheet: string | undefined;
   private readonly _log: Logger;
 
   constructor(private _converterService: ConverterService,
               private _stylesheetService: StylesheetService,
+              private _electronService: ElectronService,
               logService: LogService) {
     super();
 
     this._log = logService.getLogger('MarkdownFilePage');
     _stylesheetService.activeStylesheetChanged.pipe(takeUntil(this.isBeingDestroyed$))
                                               .subscribe(stylesheet => this.onActiveStylesheetChanged(stylesheet));
+  }
+
+  public onCommand(menuCommand: MenuCommand, ..._args: any[]): void {
+    switch (menuCommand) {
+      case MenuCommand.SaveAsPdf:
+        this.saveAsPdf();
+        break;
+
+      default:
+        this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
+        break;
+    }
+  }
+
+  private saveAsPdf(): void {
+    const contents: string | undefined = this._preview.getHtmlContent();
+
+    if (contents) {
+      this._electronService.emitRendererEvent(RendererEvent.SaveAsPdf, this._filePath, contents);
+    }
   }
 
   public setData(data: MarkdownFile): void {

@@ -99,6 +99,10 @@ export class AppComponent implements AfterViewInit {
         this.openMarkdownFile(filepath, contents);
         break;
       }
+      case MenuCommand.SaveAsPdf:
+        this._tabManagerService.sendCommand(menuCommand, ...args);
+        break;
+
       default:
         this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
         break;

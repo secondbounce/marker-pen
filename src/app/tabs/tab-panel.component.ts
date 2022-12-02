@@ -1,6 +1,7 @@
 import { Directive, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 
+import { MenuCommand } from '../enums';
 import { FormComponent } from '../ui-components';
 
 @Directive()
@@ -23,6 +24,8 @@ export abstract class TabPanelComponent<TData> extends FormComponent implements 
 
     this._titles$.complete();
   }
+
+  public abstract onCommand(menuCommand: MenuCommand, ...args: any[]): void;
 
   public get active(): boolean {
     return this._active;

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { App, BrowserWindow, BrowserWindowConstructorOptions, dialog, FileFilter, ipcMain, Menu, MenuItemConstructorOptions, OpenDialogSyncOptions } from 'electron';
+import { App, BrowserWindow, BrowserWindowConstructorOptions, dialog, FileFilter, ipcMain, Menu, MenuItemConstructorOptions, OpenDialogSyncOptions, SaveDialogSyncOptions } from 'electron';
 // import debug from 'electron-debug';
 import log from 'electron-log';
 // import reloader from 'electron-reloader';
@@ -8,10 +8,8 @@ import log from 'electron-log';
 import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from '../src/app/enums';
 import { ElectronEvent } from './enums';
 import { Logger } from './logger';
-import { MenuStateService } from './services/menu-state.service';
-import { RecentlyOpenedService } from './services/recently-opened.service';
-import { StylesheetService } from './services/stylesheet.service';
 import { RecentItem } from './model';
+import { MenuStateService, RecentlyOpenedService, StylesheetService, PdfExportService } from './services';
 import { AppInfo } from './shared/app-info';
 import { configureLogging } from './shared/log-config';
 import { convertToText } from './shared/string';
@@ -22,9 +20,12 @@ export class Application {
   private _menuStateService: MenuStateService = MenuStateService.instance;
   private _recentlyOpenedService: RecentlyOpenedService = RecentlyOpenedService.instance;
   private _stylesheetService: StylesheetService;
+  private _pdfExportService: PdfExportService = PdfExportService.instance;
   private _debugMode: boolean;
   private _appInfo: AppInfo;
   private readonly _log: Logger;
+
+  // TODO: disable 'save as PDF' menu option if no active tab
 
   constructor(private _electronApp: App) {
     configureLogging(log);
@@ -38,6 +39,7 @@ export class Application {
     this._stylesheetService = StylesheetService.instance(_electronApp.getPath('userData'));
 
     _electronApp.on(ElectronEvent.Activate, this.onElectronActivate);
+    _electronApp.on(ElectronEvent.BeforeQuit, this.onElectronBeforeQuit);
     _electronApp.on(ElectronEvent.WindowAllClosed, this.onElectronWindowAllClosed);
   }
 
@@ -121,6 +123,11 @@ export class Application {
             id: MenuId.FileOpenRecent,
             label: 'Open Recent',
             submenu: recentlyOpenedMenuTemplate
+          },
+          {
+            id: MenuId.SaveAsPdf,
+            label: 'Save as PDF...',
+            click: (): void => { this.sendMenuCommand(MenuCommand.SaveAsPdf) }
           },
           { type: 'separator' },
           this.isMac ? {
@@ -292,6 +299,16 @@ export class Application {
         this.onModalClosed();
         break;
 
+      case RendererEvent.SaveAsPdf: {
+        const [, filepath, html] = args;
+        if (filepath && html) {
+          this.onSaveAsPdf(filepath, html);
+        } else {
+          this._log.error('\'SaveAsPdf\' renderer event received without filepath/html');
+// TODO: need to display the error message somehow
+        }
+        break;
+      }
       default:
         this._log.error(`Unsupported RendererEvent - ${convertToText(args)}`);
 // TODO: need to display the error message somehow
@@ -364,6 +381,53 @@ export class Application {
     return filepath;
   }
 
+  private onSaveAsPdf(mdFilepath: string, html: string): void {
+    const pdfFilepath: string | undefined = this.promptForPdfFile(mdFilepath);
+
+    if (pdfFilepath) {
+      try {
+        this._pdfExportService.export(pdfFilepath, html);
+      } catch (err) {
+// TODO: need to display the error message somehow
+        this._log.error(`Failed to export ${mdFilepath} as PDF`, err);
+      }
+    }
+  }
+
+  private promptForPdfFile(mdFilepath: string): string | undefined {
+    let pdfFilepath: string | undefined;
+
+    if (this._mainWindow) {
+      /* Provide a default PDF filename matching the original MD file */
+      const mdPath: path.ParsedPath = path.parse(mdFilepath);
+      mdPath.base = '';   /* Otherwise, this is reused, rather than `name` and `ext` */
+      mdPath.ext = '.pdf';
+      pdfFilepath = path.format(mdPath);
+
+      const filters: FileFilter[] = [
+        { name: 'PDF Files', extensions: ['pdf'] },
+        { name: 'All Files', extensions: ['*'] }
+      ];
+      const options: SaveDialogSyncOptions = {
+        // title?: string;
+        defaultPath: pdfFilepath,
+        // buttonLabel?: string;
+        filters,
+        // message?: string;
+        // nameFieldLabel?: string;
+        // showsTagField?: boolean;
+        properties: [/*'createDirectory' |*/ 'showOverwriteConfirmation']
+        // securityScopedBookmarks?: boolean; // mac only
+      };
+
+      pdfFilepath = dialog.showSaveDialogSync(this._mainWindow, options);
+    } else {
+      this._log.warn('Main window has not been instantiated');
+    }
+
+    return pdfFilepath;
+  }
+
   private onElectronActivate = (): void => {
     /* On OS X, it's common to re-create a window in the app when the
       dock icon is clicked and there are no other windows open.
@@ -380,5 +444,9 @@ export class Application {
     if (!this.isMac) {
       this._electronApp.quit();
     }
+  };
+
+  private onElectronBeforeQuit = (): void => {
+    this._pdfExportService.close();
   };
 }

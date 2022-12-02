@@ -1,6 +1,7 @@
 import { Component, ComponentRef, OnDestroy, ViewChild, ViewContainerRef, ViewEncapsulation, ViewRef } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { MenuCommand } from 'src/app/enums';
 import { TabManagerService } from '../../services';
 import { TabPanel } from '../tab-panel';
 import { TabPanelComponent } from '../tab-panel.component';
@@ -20,6 +21,7 @@ export class TabPanelsComponent implements OnDestroy {
     tabManagerService.registerOpenTabHandler(this.openTab);
     tabManagerService.registerSwitchToTabHandler(this.switchToTab);
     tabManagerService.registerCloseTabHandler(this.closeTab);
+    tabManagerService.registerCommandHandler(this.sendCommand);
   }
 
   public ngOnDestroy(): void {
@@ -57,6 +59,14 @@ export class TabPanelsComponent implements OnDestroy {
         viewContainerRef.remove(index);
       }
       this._componentRefs.delete(key);
+    }
+  };
+
+  private sendCommand = (key: string, menuCommand: MenuCommand, ...args: any[]): void => {
+    const componentRef: ComponentRef<TabPanelComponent<any>> | undefined = this._componentRefs.get(key);
+
+    if (componentRef) {
+      componentRef.instance.onCommand(menuCommand, ...args);
     }
   };
 

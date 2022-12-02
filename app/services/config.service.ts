@@ -1,6 +1,8 @@
-import { RecentItem } from 'app/model';
+import { PdfFormat, RecentItem } from 'app/model';
 
 const enum ConfigKey {
+  // eslint-disable-next-line @typescript-eslint/no-shadow -- we know what we're doing here ;-)
+  PdfFormat = 'pdf-format',
   RecentlyOpened = 'recentlyOpened',
   Stylesheets = 'stylesheets'
 }
@@ -16,6 +18,9 @@ const schema: Record<string, unknown> = {
     items: {
       type: 'string'
     }
+  },
+  [ConfigKey.PdfFormat]: {
+    type: 'object'
   }
 };
 
@@ -24,6 +29,18 @@ const schema: Record<string, unknown> = {
   have to `require` the library, rather than `import` it.
 */
 const Store = require('electron-store');
+const DEFAULT_PDF_FORMAT: PdfFormat = {
+  paperFormat: 'a4',
+  landscape: false,
+  margins: {
+    top: '20mm',
+    bottom: '20mm',
+    left: '20mm',
+    right: '20mm'
+  },
+  displayHeader: false,
+  displayFooter: false
+};
 
 export class ConfigService {
   private static _instance: ConfigService;
@@ -49,5 +66,12 @@ export class ConfigService {
   }
   public setStylesheets(stylesheets: string[]): void {
     this._store.set(ConfigKey.Stylesheets, stylesheets);
+  }
+
+  public getPdfFormat(): PdfFormat {
+    return this._store.get(ConfigKey.PdfFormat, DEFAULT_PDF_FORMAT) as PdfFormat;
+  }
+  public setPdfFormat(pdfFormat: PdfFormat): void {
+    this._store.set(ConfigKey.PdfFormat, pdfFormat);
   }
 }

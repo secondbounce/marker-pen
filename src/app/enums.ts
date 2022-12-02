@@ -11,13 +11,15 @@ export const enum Channel {
 }
 
 export const enum MenuCommand {
-  OpenMarkdown = 'open-markdown'
+  OpenMarkdown = 'open-markdown',
+  SaveAsPdf = 'save-as-pdf'
 }
 
 export const enum MenuId {
   File = 'file',
     FileOpen = 'file_open',
     FileOpenRecent = 'file_open-recent',
+    SaveAsPdf = 'save_as_pdf',
     FileExit = 'file_exit',
   Edit = 'edit',
   Application = 'application'
@@ -34,5 +36,6 @@ export const enum RendererRequest {
 
 export const enum RendererEvent {
   ModalClosed = 'modal-closed',
-  ModalOpened = 'modal-opened'
+  ModalOpened = 'modal-opened',
+  SaveAsPdf = 'save-as-pdf'
 }

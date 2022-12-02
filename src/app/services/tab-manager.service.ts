@@ -2,6 +2,7 @@ import { Injectable, NgZone, Type } from '@angular/core';
 import { Observable, ReplaySubject, takeUntil } from 'rxjs';
 
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
+import { MenuCommand } from '../enums';
 import { TabItem, TabPanel, TabPanelComponent } from '../tabs';
 import { removeFromArray } from '../utility';
 import { BaseService } from './base.service';
@@ -15,7 +16,9 @@ export class TabManagerService extends BaseService {
   private _openTabHandler: ((tabPanel: TabPanel) => Observable<[string, string]>) | undefined;
   private _switchToTabHandler: ((key: string) => void) | undefined;
   private _closeTabHandler: ((key: string) => void) | undefined;
+  private _commandTabHandler: ((key: string, menuCommand: MenuCommand, ...args: any[]) => void) | undefined;
   private _tabItems: Map<string, TabItem> = new Map<string, TabItem>();
+  /** Array of tab keys in order of activation, the active tab being last */
   private _tabItemOrder: string[] = [];
 
   constructor(private _ngZone: NgZone,
@@ -41,6 +44,10 @@ export class TabManagerService extends BaseService {
     this._closeTabHandler = handler;
   }
 
+  public registerCommandHandler(handler: (key: string, menuCommand: MenuCommand, ...args: any[]) => void): void {
+    this._commandTabHandler = handler;
+  }
+
   public open(component: Type<TabPanelComponent<any>>, data: any): void {
     const tabPanel: TabPanel = new TabPanel(component, data);
     const key: string = tabPanel.key;
@@ -63,8 +70,7 @@ export class TabManagerService extends BaseService {
       }
     });
 
-    const activeKey: string = this._tabItemOrder.at(ARRAY_LAST_ITEM_INDEX) ?? '';
-    const activeTabItem: TabItem | undefined = this._tabItems.get(activeKey);
+    const activeTabItem: TabItem | undefined = this.getActiveTabItem();
 
     if (activeTabItem) {
       activeTabItem.active = false;
@@ -78,8 +84,7 @@ export class TabManagerService extends BaseService {
     const tabItem: TabItem | undefined = this._tabItems.get(key);
 
     if (tabItem) {
-      const activeKey: string = this._tabItemOrder.at(ARRAY_LAST_ITEM_INDEX) ?? '';
-      const activeTabItem: TabItem | undefined = this._tabItems.get(activeKey);
+      const activeTabItem: TabItem | undefined = this.getActiveTabItem();
 
       tabItem.active = true;
       if (activeTabItem) {
@@ -104,8 +109,7 @@ export class TabManagerService extends BaseService {
       if (tabItem.active) {
         this._tabItemOrder.pop();
 
-        const activeKey: string = this._tabItemOrder.at(ARRAY_LAST_ITEM_INDEX) ?? '';
-        const activeTabItem: TabItem | undefined = this._tabItems.get(activeKey);
+        const activeTabItem: TabItem | undefined = this.getActiveTabItem();
 
         if (activeTabItem) {
           activeTabItem.active = true;
@@ -123,6 +127,21 @@ export class TabManagerService extends BaseService {
       this._tabItems.delete(key);
       this.updateTabItemValues();
     }
+  }
+
+  public sendCommand(menuCommand: MenuCommand, ...args: any[]): void {
+    if (this._commandTabHandler) {
+      const activeKey: string | undefined = this._tabItemOrder.at(ARRAY_LAST_ITEM_INDEX);
+
+      if (activeKey) {
+        this._commandTabHandler(activeKey, menuCommand, ...args);
+      }
+    }
+  }
+
+  private getActiveTabItem(): TabItem | undefined {
+    const activeKey: string = this._tabItemOrder.at(ARRAY_LAST_ITEM_INDEX) ?? '';
+    return this._tabItems.get(activeKey);
   }
 
   private updateTabItemValues(): void {
