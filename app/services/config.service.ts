@@ -1,4 +1,4 @@
-import { RecentItem } from 'src/app/core/model';
+import { RecentItem } from 'app/model';
 
 const enum ConfigKey {
   RecentlyOpened = 'recentlyOpened',

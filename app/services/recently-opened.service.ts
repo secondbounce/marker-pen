@@ -1,6 +1,6 @@
 import { ReplaySubject } from 'rxjs';
 
-import { RecentItem } from '../../src/app/core/model';
+import { RecentItem } from '../model';
 import { ConfigService } from './config.service';
 
 const MAX_RECENTLY_OPENED_ITEMS: number = 10;

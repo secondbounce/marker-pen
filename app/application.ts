@@ -5,13 +5,13 @@ import { App, BrowserWindow, BrowserWindowConstructorOptions, dialog, FileFilter
 import log from 'electron-log';
 // import reloader from 'electron-reloader';
 
-import { RecentItem } from '../src/app/core/model';
 import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from '../src/app/enums';
 import { ElectronEvent } from './enums';
 import { Logger } from './logger';
 import { MenuStateService } from './services/menu-state.service';
 import { RecentlyOpenedService } from './services/recently-opened.service';
 import { StylesheetService } from './services/stylesheet.service';
+import { RecentItem } from './model';
 import { AppInfo } from './shared/app-info';
 import { configureLogging } from './shared/log-config';
 import { convertToText } from './shared/string';
