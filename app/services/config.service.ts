@@ -8,7 +8,7 @@ const schema: Record<string, unknown> = {
   [ConfigKey.RecentlyOpened]: {
     type: 'array',
     items: {
-      type: 'string'
+      type: 'object'
     }
   },
   [ConfigKey.Stylesheets]: {

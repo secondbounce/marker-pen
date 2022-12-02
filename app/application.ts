@@ -167,7 +167,7 @@ export class Application {
       recentItems.forEach(recentItem => {
         template.push({
                   label: recentItem.label,
-                  click: (): void => { this.sendMenuCommand(MenuCommand.OpenMarkdown, recentItem) }
+                  click: (): void => { this.onOpenMarkdownFile(recentItem.label) }
                 });
       });
 
@@ -306,7 +306,36 @@ export class Application {
     this._menuStateService.reenableMainMenu();
   }
 
-  private onOpenMarkdownFile(): void {
+
+  private onOpenMarkdownFile(filepath?: string): void {
+    if (typeof(filepath) === 'undefined') {
+      filepath = this.promptForMarkdownFile();
+    }
+
+    if (filepath) {
+      try {
+        fs.readFile(filepath,
+                    (err: NodeJS.ErrnoException | null, data: Buffer) => {
+                      if (err === null) {
+                        const contents: string = data.toString(); /* Using 'utf8' by default */
+                        this.sendMenuCommand(MenuCommand.OpenMarkdown, filepath, contents);
+                        this._recentlyOpenedService.add({ label: filepath ?? '' }); /* shouldn't be undefined, but just in case */
+                      } else {
+// TODO: need to display the error message somehow
+                        this._log.error(`Failed to open/read file contents of ${filepath}`, err);
+                      }
+                    });
+// TODO: need to display progress message/change cursor????
+      } catch (err) {
+// TODO: need to display the error message somehow
+        this._log.error('Failed to open file', err);
+      }
+    }
+  }
+
+  private promptForMarkdownFile(): string | undefined {
+    let filepath: string | undefined;
+
     if (this._mainWindow) {
       const filters: FileFilter[] = [
         { name: 'Markdown Files', extensions: ['md'] },
@@ -325,25 +354,13 @@ export class Application {
 
       if (filepaths) {
         this._log.assert(filepaths.length === 1, 'Multiple files selected from OpenFileDialog');
-
-        try {
-          const filepath: string = filepaths[0];
-          fs.readFile(filepath,
-                      (err: NodeJS.ErrnoException | null, data: Buffer) => {
-                        if (err === null) {
-                          const contents: string = data.toString(); /* Using 'utf8' by default */
-                          this.sendMenuCommand(MenuCommand.OpenMarkdown, filepath, contents);
-                        } else {
-                          this._log.error(`Failed to open/read file contents of ${filepath}`, err);
-                        }
-                      });
-// TODO: need to display progress message/change cursor????
-        } catch (err) {
-// TODO: need to display the error message somehow
-          this._log.error('Failed to open file', err);
-        }
+        filepath = filepaths[0];
       }
+    } else {
+      this._log.warn('Main window has not been instantiated');
     }
+
+    return filepath;
   }
 
   private onElectronActivate = (): void => {
