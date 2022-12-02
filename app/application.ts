@@ -132,10 +132,11 @@ export class Application {
                         role: 'quit'
                        }
         ]
-      },
-      {
-        id: MenuId.Edit,
-        role: 'editMenu'
+// TODO: not needed (for now)
+      // },
+      // {
+      //   id: MenuId.Edit,
+      //   role: 'editMenu'
       }
     ];
 
