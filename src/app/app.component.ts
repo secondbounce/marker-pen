@@ -5,16 +5,11 @@ import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
 import { Logger, MarkdownFile } from './core/model';
-import { Channel, MenuCommand, MessageType } from './enums';
+import { Channel, MenuCommand, MessageType, ToolbarControlId } from './enums';
 import { ElectronService, LogService, MessageService, StylesheetService, TabManagerService } from './services';
-import { ToolbarComponent, ToolbarControlResult, ToolbarControlType } from './ui-components/toolbar/toolbar.module';
+import { ToolbarComponent, ToolbarControlResult, ToolbarControlType, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
-
-const enum ToolbarControlId {
-  OpenDummy = 'open-dummy',
-  Stylesheets = 'stylesheets'
-}
 
 @Component({
   selector: 'app-root',
@@ -24,6 +19,7 @@ const enum ToolbarControlId {
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild(ToolbarComponent) private _toolbar!: ToolbarComponent;
+  private _emptyToolbarState: ToolbarState = {};
   private readonly _log: Logger;
 
   constructor(private _electronService: ElectronService,
@@ -67,9 +63,14 @@ export class AppComponent implements AfterViewInit {
                                   type: ToolbarControlType.Dropdown,
                                   tooltip: 'Stylesheets',
                                   selected: this._stylesheetService.activeStylesheet,
-                                  options
+                                  options,
+                                  enabled: false
                                 }
                               ];
+                              /* Store the initial state when there are no tabs to make it easy to
+                                reset to this when all tabs are closed.
+                              */
+                              this._emptyToolbarState = this._toolbar.state;
                             });
   }
 
@@ -125,6 +126,11 @@ export class AppComponent implements AfterViewInit {
         const [, stylesheet] = args;
 
         this.handleSetActiveStylesheet(stylesheet);
+        break;
+      }
+      case MessageType.TabChanged: {
+        const [, toolbarState] = args;
+        this._toolbar.state = toolbarState ?? this._emptyToolbarState;
         break;
       }
       default:

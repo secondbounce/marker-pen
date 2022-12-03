@@ -9,7 +9,7 @@ import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from '..
 import { ElectronEvent } from './enums';
 import { Logger } from './logger';
 import { RecentItem } from './model';
-import { MenuStateService, RecentlyOpenedService, StylesheetService, PdfExportService } from './services';
+import { MenuStateService, PdfExportService, RecentlyOpenedService, StylesheetService } from './services';
 import { AppInfo } from './shared/app-info';
 import { configureLogging } from './shared/log-config';
 import { convertToText } from './shared/string';

@@ -26,7 +26,8 @@ export const enum MenuId {
 }
 
 export const enum MessageType {
-  SetActiveStylesheet = 'set-stylesheet'
+  SetActiveStylesheet = 'set-stylesheet',
+  TabChanged = 'tab-changed'
 }
 
 export const enum RendererRequest {
@@ -38,4 +39,9 @@ export const enum RendererEvent {
   ModalClosed = 'modal-closed',
   ModalOpened = 'modal-opened',
   SaveAsPdf = 'save-as-pdf'
+}
+
+export const enum ToolbarControlId {
+  OpenDummy = 'open-dummy',
+  Stylesheets = 'stylesheets'
 }

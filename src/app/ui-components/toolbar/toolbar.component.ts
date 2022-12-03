@@ -106,20 +106,22 @@ export class ToolbarComponent {
       if (state) {
         control.enabled = state.enabled;
 
-        switch (control.type) {
-          case ToolbarControlType.Checkbox:
-            (control as ToolbarCheckbox).checked = state.value as boolean;
-            break;
+        if (typeof(state.value) !== 'undefined') {
+          switch (control.type) {
+            case ToolbarControlType.Checkbox:
+              (control as ToolbarCheckbox).checked = state.value as boolean;
+              break;
 
-          case ToolbarControlType.Dropdown:
-            (control as ToolbarDropdown).selected = state.value as string;
-            break;
+            case ToolbarControlType.Dropdown:
+              (control as ToolbarDropdown).selected = state.value as string;
+              break;
 
-          default:
-            this._log.assert(control.type === ToolbarControlType.Button,
-                             `Unrecognized toolbar control type - ${control.type}`);
-            /* No value */
-            break;
+            default:
+              this._log.assert(control.type === ToolbarControlType.Button,
+                              `Unrecognized toolbar control type - ${control.type}`);
+              /* No value */
+              break;
+          }
         }
       }
 

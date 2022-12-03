@@ -3,10 +3,11 @@ import { SafeHtml } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs';
 
 import { Logger, MarkdownFile } from 'src/app/core/model';
-import { MenuCommand, RendererEvent } from 'src/app/enums';
-import { ConverterService, ElectronService, LogService, StylesheetService } from 'src/app/services';
+import { MenuCommand, MessageType, RendererEvent, ToolbarControlId } from 'src/app/enums';
+import { ConverterService, ElectronService, LogService, MessageService, StylesheetService } from 'src/app/services';
 import { TabPanelComponent } from 'src/app/tabs';
 import { PreviewComponent } from 'src/app/ui-components/preview/preview.component';
+import { ToolbarState } from 'src/app/ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from 'src/app/utility';
 
 @Component({
@@ -26,6 +27,7 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
 
   constructor(private _converterService: ConverterService,
               private _stylesheetService: StylesheetService,
+              private _messageService: MessageService,
               private _electronService: ElectronService,
               logService: LogService) {
     super();
@@ -88,6 +90,15 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
                                   this.css = data.css;
                                 });
       }
+
+      const toolbarState: ToolbarState = {
+        [ToolbarControlId.Stylesheets]: {
+          id: ToolbarControlId.Stylesheets,
+          enabled: true
+        }
+      };
+
+      this._messageService.send(MessageType.TabChanged, toolbarState);
     }
   }
 

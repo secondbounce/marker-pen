@@ -2,11 +2,12 @@ import { Injectable, NgZone, Type } from '@angular/core';
 import { Observable, ReplaySubject, takeUntil } from 'rxjs';
 
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
-import { MenuCommand } from '../enums';
+import { MenuCommand, MessageType } from '../enums';
 import { TabItem, TabPanel, TabPanelComponent } from '../tabs';
 import { removeFromArray } from '../utility';
 import { BaseService } from './base.service';
 import { LogService } from './log.service';
+import { MessageService } from './message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class TabManagerService extends BaseService {
   private _tabItemOrder: string[] = [];
 
   constructor(private _ngZone: NgZone,
+              private _messageService: MessageService,
               logService: LogService) {
     super(logService);
 
@@ -126,6 +128,10 @@ export class TabManagerService extends BaseService {
       }
       this._tabItems.delete(key);
       this.updateTabItemValues();
+
+      if (this._tabItems.size == 0) {
+        this._messageService.send(MessageType.TabChanged);
+      }
     }
   }
 
