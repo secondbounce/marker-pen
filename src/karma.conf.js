@@ -24,9 +24,9 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    browsers: ['Meditor'],
+    browsers: ['MarkerPen'],
     customLaunchers: {
-      Meditor: {
+      MarkerPen: {
         base: 'Electron',
         flags: [
           '--remote-debugging-port=9222'

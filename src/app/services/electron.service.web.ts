@@ -32,7 +32,7 @@ export class ElectronService {
   public readonly fs?: typeof fs;
   private readonly _ipcRenderer?: typeof ipcRenderer;
   private _appInfo: AppInfo = {
-    appName: 'Meditor'  /* Default if running in browsers */
+    appName: 'MarkerPen'  /* Default if running in browsers */
   };
   private readonly _log: Logger;
 

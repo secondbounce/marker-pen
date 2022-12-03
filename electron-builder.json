@@ -1,5 +1,5 @@
 {
-  "appId": "com.secondbounce.meditor",
+  "appId": "com.secondbounce.marker-pen",
   "asar": true,
   "directories": {
     "output": "release/"
