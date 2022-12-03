@@ -1,8 +1,9 @@
 import { Injectable, NgZone, Type } from '@angular/core';
 import { Observable, ReplaySubject, takeUntil } from 'rxjs';
 
+import { MenuCommand } from '~shared/enums';
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
-import { MenuCommand, MessageType } from '../enums';
+import { MessageType } from '../enums';
 import { TabItem, TabPanel, TabPanelComponent } from '../tabs';
 import { removeFromArray } from '../utility';
 import { BaseService } from './base.service';

@@ -1,7 +1,7 @@
 import { ContextMenuParams, Menu, MenuItem } from 'electron';
 
-import { MenuId } from '../../src/app/enums';
 import { Logger } from '../logger';
+import { MenuId } from '../shared/enums';
 
 /**
  * NOTE  Because Electron doesn't currently provide a way to remove menu items, we're having

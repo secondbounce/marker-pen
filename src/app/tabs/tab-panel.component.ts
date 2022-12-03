@@ -1,7 +1,7 @@
 import { Directive, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 
-import { MenuCommand } from '../enums';
+import { MenuCommand } from '~shared/enums';
 import { FormComponent } from '../ui-components';
 
 @Directive()

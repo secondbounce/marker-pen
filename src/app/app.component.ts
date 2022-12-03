@@ -1,11 +1,12 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
+import { Channel, MenuCommand } from '~shared/enums';
 import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
 import { Logger, MarkdownFile } from './core/model';
-import { Channel, MenuCommand, MessageType, ToolbarControlId } from './enums';
+import { MessageType, ToolbarControlId } from './enums';
 import { ElectronService, LogService, MessageService, StylesheetService, TabManagerService } from './services';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControlType, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';

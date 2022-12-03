@@ -1,7 +1,8 @@
 import { EventEmitter, Injectable } from '@angular/core';
 
+import { RendererRequest } from '~shared/enums';
 import { Stylesheet } from '../core/model';
-import { MessageType, RendererRequest } from '../enums';
+import { MessageType } from '../enums';
 import { BaseService } from './base.service';
 import { ElectronService } from './electron.service';
 import { LogService } from './log.service';

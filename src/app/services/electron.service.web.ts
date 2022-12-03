@@ -9,8 +9,8 @@ import { ipcRenderer, webFrame } from 'electron';
 import { firstValueFrom } from 'rxjs';
 
 import { AppInfo } from '~shared/app-info';
+import { Channel, RendererEvent, RendererRequest } from '~shared/enums';
 import { Logger } from '../core/model';
-import { Channel, RendererEvent, RendererRequest } from '../enums';
 import { isElectron } from '../utility';
 import { LogService } from './log.service';
 

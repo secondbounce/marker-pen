@@ -2,8 +2,9 @@ import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs';
 
+import { MenuCommand, RendererEvent } from '~shared/enums';
 import { Logger, MarkdownFile } from 'src/app/core/model';
-import { MenuCommand, MessageType, RendererEvent, ToolbarControlId } from 'src/app/enums';
+import { MessageType, ToolbarControlId } from 'src/app/enums';
 import { ConverterService, ElectronService, LogService, MessageService, StylesheetService } from 'src/app/services';
 import { TabPanelComponent } from 'src/app/tabs';
 import { PreviewComponent } from 'src/app/ui-components/preview/preview.component';
