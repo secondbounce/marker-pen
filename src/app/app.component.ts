@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Channel, MenuCommand } from '~shared/enums';
+import { Channel, MenuCommand, RendererEvent } from '~shared/enums';
 import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
 import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
@@ -125,13 +125,16 @@ export class AppComponent implements AfterViewInit {
     switch (message) {
       case MessageType.SetActiveStylesheet: {
         const [, stylesheet] = args;
-
         this.handleSetActiveStylesheet(stylesheet);
         break;
       }
       case MessageType.TabChanged: {
         const [, toolbarState] = args;
         this._toolbar.state = toolbarState ?? this._emptyToolbarState;
+
+        if (typeof(toolbarState) === 'undefined') {
+          this._electronService.emitRendererEvent(RendererEvent.TabChanged);
+        }
         break;
       }
       default:

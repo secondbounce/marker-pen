@@ -28,5 +28,6 @@ export const enum RendererRequest {
 export const enum RendererEvent {
   ModalClosed = 'modal-closed',
   ModalOpened = 'modal-opened',
-  SaveAsPdf = 'save-as-pdf'
+  SaveAsPdf = 'save-as-pdf',
+  TabChanged = 'tab-changed'
 }

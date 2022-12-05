@@ -1,5 +1,6 @@
 {
   "name": "marker-pen",
+  "productName": "MarkerPen",
   "version": "0.0.0",
   "description": "",
   "homepage": "",
@@ -7,6 +8,8 @@
     "name": "David Geary",
     "email": "david@secondbounce.com"
   },
+  "repository": {},
+  "license": "MIT",
   "keywords": [],
   "main": "app/main.js",
   "private": true,

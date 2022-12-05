@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { takeUntil } from 'rxjs';
 
-import { MenuCommand, RendererEvent } from '~shared/enums';
+import { MenuCommand, MenuId, RendererEvent } from '~shared/enums';
 import { Logger, MarkdownFile } from 'src/app/core/model';
 import { MessageType, ToolbarControlId } from 'src/app/enums';
 import { ConverterService, ElectronService, LogService, MessageService, StylesheetService } from 'src/app/services';
@@ -100,6 +100,12 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
       };
 
       this._messageService.send(MessageType.TabChanged, toolbarState);
+      this._electronService.emitRendererEvent(RendererEvent.TabChanged, [
+        {
+          id: MenuId.SaveAsPdf,
+          enabled: true
+        }
+      ]);
     }
   }
 

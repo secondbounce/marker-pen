@@ -12,6 +12,7 @@ import { MenuStateService, PdfExportService, RecentlyOpenedService, StylesheetSe
 import { AppInfo } from './shared/app-info';
 import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from './shared/enums';
 import { configureLogging } from './shared/log-config';
+import { MenuItemState } from './shared/menu-item-state';
 import { convertToText } from './shared/string';
 
 export class Application {
@@ -23,9 +24,14 @@ export class Application {
   private _pdfExportService: PdfExportService = PdfExportService.instance;
   private _debugMode: boolean;
   private _appInfo: AppInfo;
+  private _emptyMenuState: MenuItemState[] = [
+    /* Menu state when no tabs are open */
+    {
+      id: MenuId.SaveAsPdf,
+      enabled: false
+    }
+  ];
   private readonly _log: Logger;
-
-  // TODO: disable 'save as PDF' menu option if no active tab
 
   constructor(private _electronApp: App) {
     configureLogging(log);
@@ -127,6 +133,7 @@ export class Application {
           {
             id: MenuId.SaveAsPdf,
             label: 'Save as PDF...',
+            enabled: false,
             click: (): void => { this.sendMenuCommand(MenuCommand.SaveAsPdf) }
           },
           { type: 'separator' },
@@ -191,26 +198,26 @@ export class Application {
     return template;
   }
 
-  private setUpContextMenuForEditing(mainWindow: BrowserWindow): void {
-    /* Rather than constructing the edit menu manually, we'll just use the 'editmenu' role to
-      create the required items for us and then use that.
-    */
-    const contextMenu: Menu = Menu.buildFromTemplate([
-      { role: 'editMenu' }
-    ]);
-    const editMenu: Menu | undefined = contextMenu.items[0].submenu;
+  // private setUpContextMenuForEditing(mainWindow: BrowserWindow): void {
+  //   /* Rather than constructing the edit menu manually, we'll just use the 'editmenu' role to
+  //     create the required items for us and then use that.
+  //   */
+  //   const contextMenu: Menu = Menu.buildFromTemplate([
+  //     { role: 'editMenu' }
+  //   ]);
+  //   const editMenu: Menu | undefined = contextMenu.items[0].submenu;
 
-    if (editMenu) {
-      mainWindow.webContents.on(ElectronEvent.ContextMenu, (_e, props) => {
-        const { selectionText, isEditable } = props;
+  //   if (editMenu) {
+  //     mainWindow.webContents.on(ElectronEvent.ContextMenu, (_e, props) => {
+  //       const { selectionText, isEditable } = props;
 
-        if ((selectionText && selectionText.length > 0) || isEditable) {
-          this._menuStateService.setEditMenuItemsState(editMenu, props);
-          editMenu.popup({ window: mainWindow });
-        }
-      });
-    }
-  }
+  //       if ((selectionText && selectionText.length > 0) || isEditable) {
+  //         this._menuStateService.setEditMenuItemsState(editMenu, props);
+  //         editMenu.popup({ window: mainWindow });
+  //       }
+  //     });
+  //   }
+  // }
 
   private getBrowserAppUrl(): string {
     let appUrl: string;
@@ -244,7 +251,7 @@ export class Application {
 
     this._mainWindow = mainWindow;
     this._mainWindow.webContents.send(Channel.AppInfo, this._appInfo);
-    this.setUpContextMenuForEditing(mainWindow);
+    // this.setUpContextMenuForEditing(mainWindow);
 
     if (this._debugMode) {
       mainWindow.webContents.openDevTools();
@@ -309,6 +316,11 @@ export class Application {
         }
         break;
       }
+      case RendererEvent.TabChanged: {
+        const [, menuState] = args;
+        this._menuStateService.setState(menuState ?? this._emptyMenuState);
+        break;
+      }
       default:
         this._log.error(`Unsupported RendererEvent - ${convertToText(args)}`);
 // TODO: need to display the error message somehow
@@ -317,11 +329,11 @@ export class Application {
   };
 
   private onModalOpened(): void {
-    this._menuStateService.disableMainMenu();
+    // this._menuStateService.disableMainMenu();
   }
 
   private onModalClosed(): void {
-    this._menuStateService.reenableMainMenu();
+    // this._menuStateService.reenableMainMenu();
   }
 
 
