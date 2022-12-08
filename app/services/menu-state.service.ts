@@ -1,8 +1,17 @@
 import { Menu, MenuItem } from 'electron';
 
 import { Logger } from '../logger';
-// import { MenuId } from '../shared/enums';
 import { MenuItemState } from '../shared/menu-item-state';
+
+const ALWAYS_ENABLED_ROLES: string[] = [
+  'close',
+  'quit',
+  'editMenu',
+  'services',
+  'hide',
+  'hideOthers',
+  'unhide'
+];
 
 /**
  * NOTE  Because Electron doesn't currently provide a way to remove menu items, we're having
@@ -23,56 +32,6 @@ export class MenuStateService {
     return this._instance || (this._instance = new this());
   }
 
-//   public disableMainMenu(): void {
-//     /* If the menu has already been disabled, we don't want to do it again (which would
-//       overwrite the saved state with all disabled states).
-//     */
-//     if (this._lastMenuState.size === 0) {
-//       const mainMenu: Menu = this.getMainMenu();
-
-//       /* For the File menu, disable all sub-items except the Exit item */
-//       let submenu: Menu | undefined = this.getMenuItem(mainMenu, MenuId.File).submenu;
-//       if (submenu) {
-//         for (const menuItem of submenu.items) {
-//           if (menuItem.id !== MenuId.FileExit) {
-//             this.disableMenuItem(menuItem);
-//           }
-//         }
-//       }
-
-// // TODO: at the moment, the only other menu is Edit, which is still (potentially) valid for use with
-// // modal dialogs, but if we add any others, their items will need disabling too.
-
-//       /* For the (mac-only) Application menu, disable just the About item */
-//       submenu = mainMenu.getMenuItemById(MenuId.Application)?.submenu;
-//       if (submenu) {
-//         const menuItem: MenuItem | undefined = submenu.items.find(item => item.role === 'about');
-//         if (menuItem) {
-//           this.disableMenuItem(menuItem);
-//         }
-//       }
-//     }
-//   }
-
-//   private disableMenuItem(menuItem: MenuItem): void {
-//     if (menuItem.type !== 'separator') {
-//       this._lastMenuState.set(menuItem.id, menuItem.enabled);
-//       menuItem.enabled = false;
-//     }
-//   }
-
-//   public reenableMainMenu(): void {
-//     const mainMenu: Menu = this.getMainMenu();
-//     let menuItem: MenuItem;
-
-//     for (const [menuId, enabled] of this._lastMenuState) {
-//       menuItem = this.getMenuItem(mainMenu, menuId);
-//       menuItem.enabled = enabled;
-//     }
-
-//     this._lastMenuState.clear();
-//   }
-
   public setState(menuState: MenuItemState[]): void {
     const mainMenu: Menu = this.getMainMenu();
 
@@ -86,38 +45,85 @@ export class MenuStateService {
         this._lastMenuState.set(menuId, { ...itemState });  /* Clone the state to avoid side effects */
       } else {
         const menuItem: MenuItem = this.getMenuItem(mainMenu, menuId);
-        menuItem.enabled = itemState.enabled;
+        this.setMenuItemState(menuItem, itemState);
+      }
+    }
+  }
 
-        if (typeof(itemState.checked) !== 'undefined') {
-          menuItem.checked = itemState.checked;
+  public setMainMenuState(enabled: boolean): void {
+    if (enabled) {
+      this.restoreMainMenu();
+    } else {
+      this.disableMainMenu();
+    }
+  }
+
+  private disableMainMenu(): void {
+    /* If the menu has already been disabled, we don't want to do it again (which would
+      overwrite the saved state with all disabled states).
+    */
+    if (this._lastMenuState.size === 0) {
+      const mainMenu: Menu = this.getMainMenu();
+      this.disableMenu(mainMenu, []);
+    }
+  }
+
+  private disableMenu(menu: Menu, ancestors: MenuItem[]): void {
+    /* There is no mechanism for finding an item's parent menu, so we must explicitly construct an
+      array of ancestors as we traverse down the menu structure.
+    */
+    for (const menuItem of menu.items) {
+      if (menuItem.type !== 'separator') {
+        if (menuItem.role && ALWAYS_ENABLED_ROLES.includes(menuItem.role)) {
+          /* This item doesn't need to be updated, but its parents must be in order for this item
+            to be accessible.
+          */
+          this.enableParentMenus(ancestors);
+        } else {
+          /* Disable this menu item, *plus* all of its submenu items, since if one of them is an
+            'always enabled' item, we'll end up having to re-enable this item in order to allow
+            access to the submenu item (which would also allow access to the others if they weren't
+            disabled individually).
+          */
+          this.disableMenuItem(menuItem);
+
+          if (menuItem.submenu) {
+            this.disableMenu(menu, [...ancestors, menuItem]);   /* Need to clone array */
+          }
         }
       }
     }
   }
 
-  // public setMenuItemState(menuId: MenuId | string, enabled: boolean): void {
-  //   /* If this is called while the main menu is disabled, just change the corresponding value
-  //     in the saved state as it'll get set later.
-  //   */
-  //   if (this._lastMenuState.has(menuId)) {
-  //     this._lastMenuState.set(menuId, enabled);
-  //   } else {
-  //     const mainMenu: Menu = this.getMainMenu();
-  //     const menuItem: MenuItem = this.getMenuItem(mainMenu, menuId);
-  //     menuItem.enabled = enabled;
-  //   }
-  // }
+  private enableParentMenus(ancestors: MenuItem[]): void {
+    for (const menuItem of ancestors) {
+      menuItem.enabled = true;
 
-  // public setEditMenuItemsState(editMenu: Menu, props: ContextMenuParams): void {
-  //   this.setMenuItemStateByRole(editMenu, 'undo', props.editFlags.canUndo);
-  //   this.setMenuItemStateByRole(editMenu, 'redo', props.editFlags.canRedo);
-  //   this.setMenuItemStateByRole(editMenu, 'cut', props.editFlags.canCut);
-  //   this.setMenuItemStateByRole(editMenu, 'copy', props.editFlags.canCopy);
-  //   this.setMenuItemStateByRole(editMenu, 'paste', props.editFlags.canPaste);
-  //   this.setMenuItemStateByRole(editMenu, 'pasteAndMatchStyle', props.editFlags.canEditRichly);
-  //   this.setMenuItemStateByRole(editMenu, 'delete', props.editFlags.canDelete);
-  //   this.setMenuItemStateByRole(editMenu, 'selectall', props.editFlags.canSelectAll);
-  // }
+      const state: MenuItemState | undefined = this._lastMenuState.get(menuItem.id);
+      if (state) {
+        state.enabled = true;
+      }
+    }
+  }
+
+  private disableMenuItem(menuItem: MenuItem): void {
+    const state: MenuItemState = this.getMenuItemState(menuItem);
+
+    this._lastMenuState.set(menuItem.id, state);
+    menuItem.enabled = false;
+  }
+
+  private restoreMainMenu(): void {
+    const mainMenu: Menu = this.getMainMenu();
+    let menuItem: MenuItem;
+
+    for (const [menuId, state] of this._lastMenuState) {
+      menuItem = this.getMenuItem(mainMenu, menuId);
+      this.setMenuItemState(menuItem, state);
+    }
+
+    this._lastMenuState.clear();
+  }
 
   private getMainMenu(): Menu {
     const menu: Menu | null = Menu.getApplicationMenu();
@@ -141,10 +147,24 @@ export class MenuStateService {
     return menuItem;
   }
 
-  // private setMenuItemStateByRole(menu: Menu, role: string, enabled: boolean): void {
-  //   const menuItem: MenuItem | undefined = menu.items.find(item => item.role === role);
-  //   if (menuItem) {
-  //     menuItem.enabled = enabled;
-  //   }
-  // }
+  private getMenuItemState(menuItem: MenuItem): MenuItemState {
+    const state: MenuItemState = {
+      id: menuItem.id,
+      enabled: menuItem.enabled
+    };
+
+    if (menuItem.type === 'checkbox' || menuItem.type === 'radio') {
+      state.checked = menuItem.checked;
+    }
+
+    return state;
+  }
+
+  public setMenuItemState(menuItem: MenuItem, state: MenuItemState): void {
+    menuItem.enabled = state.enabled;
+
+    if (typeof(state.checked) !== 'undefined') {
+      menuItem.checked = state.checked;
+    }
+  }
 }

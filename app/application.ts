@@ -329,11 +329,11 @@ export class Application {
   };
 
   private onModalOpened(): void {
-    // this._menuStateService.disableMainMenu();
+    this._menuStateService.setMainMenuState(false);
   }
 
   private onModalClosed(): void {
-    // this._menuStateService.reenableMainMenu();
+    this._menuStateService.setMainMenuState(true);
   }
 
 
