@@ -7,7 +7,13 @@ import { ToolbarDropdownComponent } from './toolbar-dropdown.component';
 import { ToolbarComponent } from './toolbar.component';
 
 export { ToolbarComponent } from './toolbar.component';
-export { ToolbarControlResult, ToolbarControlState, ToolbarControlType, ToolbarState } from './toolbar-types';
+export { ToolbarControlResult,
+         ToolbarControls,
+         ToolbarControlState,
+         ToolbarControlType,
+         ToolbarDropdownOption,
+         ToolbarState
+       } from './toolbar-types';
 
 @NgModule({
   imports: [

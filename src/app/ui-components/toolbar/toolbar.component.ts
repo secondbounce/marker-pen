@@ -2,7 +2,13 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 
 import { Logger } from 'app/logger';
 import { LogService } from 'src/app/services';
-import { ToolbarButton, ToolbarCheckbox, ToolbarControlResult, ToolbarControlState, ToolbarControlType, ToolbarDropdown, ToolbarState } from './toolbar-types';
+import { ToolbarCheckbox,
+         ToolbarControlResult,
+         ToolbarControls,
+         ToolbarControlState,
+         ToolbarControlType,
+         ToolbarDropdown,
+         ToolbarState } from './toolbar-types';
 
 @Component({
   selector: 'app-toolbar',
@@ -14,7 +20,7 @@ export class ToolbarComponent {
   public readonly ToolbarControlType = ToolbarControlType;
   @Output() public controlClick: EventEmitter<ToolbarControlResult> = new EventEmitter<ToolbarControlResult>();
   @Output() public stateChanged: EventEmitter<ToolbarState> = new EventEmitter<ToolbarState>();
-  protected _controls: (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[] = [];
+  protected _controls: ToolbarControls = [];
   private _state: ToolbarState = {};
   private readonly _log: Logger;
 
@@ -23,8 +29,8 @@ export class ToolbarComponent {
   }
 
   @Input()
-  public get controls(): (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[] {
-    const controls: (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[] = [];
+  public get controls(): ToolbarControls {
+    const controls: ToolbarControls = [];
 
     for (const control of this._controls) {
       controls.push({ ...control });  /* Clone the control to isolate external changes */
@@ -32,7 +38,7 @@ export class ToolbarComponent {
 
     return controls;
   }
-  public set controls(controls: (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[]) {
+  public set controls(controls: ToolbarControls) {
     this._controls = [];
     this._state = {};
 
@@ -51,7 +57,7 @@ export class ToolbarComponent {
 
         case ToolbarControlType.Dropdown: {
           const dropdown: ToolbarDropdown = control as ToolbarDropdown;
-          let value: string = dropdown.selected;
+          let value: string = dropdown.selected ?? '';
 
           if (value.length === 0 && dropdown.options && dropdown.options.length > 0) {
             /* SELECT element will show first option as selected, so set it explicitly */
@@ -98,13 +104,15 @@ export class ToolbarComponent {
 
   private updateControlStates(): void {
     /* As we update the controls, we'll populate a new array  */
-    const controls: (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[] = [];
+    const controls: ToolbarControls = [];
 
     for (const control of this._controls) {
       const state: ToolbarControlState = this._state[control.id];
 
       if (state) {
-        control.enabled = state.enabled;
+        if (state.enabled) {
+          control.enabled = state.enabled;
+        }
 
         if (typeof(state.value) !== 'undefined') {
           switch (control.type) {
@@ -122,6 +130,10 @@ export class ToolbarComponent {
               /* No value */
               break;
           }
+        }
+
+        if (control.type === ToolbarControlType.Dropdown && state.options) {
+          (control as ToolbarDropdown).options = state.options;
         }
       }
 

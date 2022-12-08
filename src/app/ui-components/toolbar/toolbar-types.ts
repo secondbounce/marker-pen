@@ -4,6 +4,8 @@ export /* not const*/ enum ToolbarControlType {
   Dropdown
 }
 
+export type ToolbarControls = (ToolbarButton | ToolbarCheckbox | ToolbarDropdown)[];
+
 export interface ToolbarControl {
   id: string;
   type: ToolbarControlType;
@@ -21,8 +23,13 @@ export interface ToolbarCheckbox extends ToolbarControl {
 }
 
 export interface ToolbarDropdown extends ToolbarControl {
-  selected: string;
-  options: { id: string, text: string }[] | undefined;
+  selected?: string;
+  options: ToolbarDropdownOption[] | undefined;
+}
+
+export interface ToolbarDropdownOption {
+  id: string;
+  text: string;
 }
 
 export interface ToolbarControlResult {
@@ -38,5 +45,7 @@ export type ToolbarState = {
 export interface ToolbarControlState {
   id: string;
   value?: string | boolean | undefined;
-  enabled: boolean
+  enabled?: boolean,
+  /** Only valid for `ToolbarControlType.Dropdown` */
+  options?: ToolbarDropdownOption[]
 }

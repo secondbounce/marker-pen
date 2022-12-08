@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 import { Logger, MarkdownFile } from './core/model';
 import { MessageType, ToolbarControlId } from './enums';
 import { ElectronService, LogService, MessageService, StylesheetService, TabManagerService } from './services';
-import { ToolbarComponent, ToolbarControlResult, ToolbarControlType, ToolbarState } from './ui-components/toolbar/toolbar.module';
+import { ToolbarComponent, ToolbarControlResult, ToolbarControls, ToolbarControlType, ToolbarDropdownOption, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
 
@@ -41,47 +41,58 @@ export class AppComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
+    /* Setting up the toolbar controls within the promise response avoids the dreaded
+      `ExpressionChangedAfterItHasBeenCheckedError`...
+    */
     this._stylesheetService.getAvailableStylesheets()
                            .then((stylesheets: string[]) => {
-                              const options: any[] = [];
+                              const options: ToolbarDropdownOption[] = [];
 
                               stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
-                                                                              text: getFilenameFromPath(stylesheet)
-                                                                            }
-                                                  ));
-
-                              this._toolbar.controls = [
-// TODO: remove (or make it a conditional compilation thing???)
-                                {
-                                  id: ToolbarControlId.OpenDummy,
-                                  type: ToolbarControlType.Button,
-                                  tooltip: 'Open dummy markdown for testing',
-                                  icon: 'assets/icons/close.svg'
-                                },
-// END-TODO
-                                {
-                                  id: ToolbarControlId.Stylesheets,
-                                  type: ToolbarControlType.Dropdown,
-                                  tooltip: 'Stylesheets',
-                                  selected: this._stylesheetService.activeStylesheet,
-                                  options,
-                                  enabled: false
-                                }
-                              ];
-                              /* Store the initial state when there are no tabs to make it easy to
-                                reset to this when all tabs are closed.
-                              */
-                              this._emptyToolbarState = this._toolbar.state;
+                                                                               text: getFilenameFromPath(stylesheet) ?? ''
+                                                                             })
+                                                  );
+                              this.initializeToolbarControls(options);
                             });
+  }
+
+  private initializeToolbarControls(options: ToolbarDropdownOption[]): void {
+    const toolbarControls: ToolbarControls = [
+// TODO: remove (or make it a conditional compilation thing???)
+      {
+        id: ToolbarControlId.OpenDummy,
+        type: ToolbarControlType.Button,
+        tooltip: 'Open dummy markdown for testing',
+        icon: 'assets/icons/close.svg'
+      },
+// END-TODO
+      {
+        id: ToolbarControlId.Stylesheets,
+        type: ToolbarControlType.Dropdown,
+        tooltip: 'Stylesheets',
+        selected: this._stylesheetService.activeStylesheet,
+        options,
+        enabled: false
+      }
+    ];
+
+    this._toolbar.controls = toolbarControls;
+
+    /* Store the initial state when there are no tabs to make it easy to
+      reset to this when all tabs are closed.
+    */
+    this._emptyToolbarState = this._toolbar.state;
   }
 
   public onToolbarControlClick(result: ToolbarControlResult): void {
     switch (result.id) {
+// TODO: remove (or make it a conditional compilation thing???)
       case ToolbarControlId.OpenDummy: {
         const id: number = Date.now();
         this.openMarkdownFile(`c:\\path\\to\\the\\sample\\${id}.md`, id.toString() + '\n\n' + SAMPLE_MARKDOWN);
         break;
       }
+// END-TODO
       case ToolbarControlId.Stylesheets:
         this._stylesheetService.activeStylesheet = result.value as string;
         break;
