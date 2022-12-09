@@ -8,7 +8,7 @@ import log from 'electron-log';
 import { ElectronEvent } from './enums';
 import { Logger } from './logger';
 import { RecentItem } from './model';
-import { MenuStateService, PdfExportService, RecentlyOpenedService, StylesheetService } from './services';
+import { MenuStateService, PdfExportService, RecentlyOpenedService, SettingsService, StylesheetService } from './services';
 import { AppInfo } from './shared/app-info';
 import { Channel, MenuCommand, MenuId, RendererEvent, RendererRequest } from './shared/enums';
 import { configureLogging } from './shared/log-config';
@@ -20,6 +20,7 @@ export class Application {
   private _mainWindow: BrowserWindow | undefined;
   private _menuStateService: MenuStateService = MenuStateService.instance;
   private _recentlyOpenedService: RecentlyOpenedService = RecentlyOpenedService.instance;
+  private _settingsService: SettingsService = SettingsService.instance;
   private _stylesheetService: StylesheetService;
   private _pdfExportService: PdfExportService = PdfExportService.instance;
   private _debugMode: boolean;
@@ -52,6 +53,7 @@ export class Application {
   public initialize(): void {
     this.createMainWindow();
 
+    ipcMain.handle(Channel.Settings, (_event, ...args) => this._settingsService.handleSettingsRequest(...args));
     ipcMain.handle(Channel.RendererRequest, (_event, ...args) => this.handleRendererRequest(...args));
     ipcMain.on(Channel.RendererEvent, (_event, ...args) => this.handleRendererEvent(...args));
   }
@@ -268,12 +270,10 @@ export class Application {
     const request: RendererRequest = args[0];
 
     switch (request) {
-      case RendererRequest.GetAvailableStylesheets:
-        return this.getAvailableStylesheets();
-
       case RendererRequest.GetStylesheet: {
         const [, filepath] = args;
-        return this.getStylesheet(filepath);
+        const stylesheet: string = this._stylesheetService.getStylesheet(filepath);
+        return Promise.resolve(stylesheet);
       }
       default: {
         const message: string = `Unsupported RendererRequest - ${convertToText(args)}`;
@@ -283,16 +283,6 @@ export class Application {
       }
     }
   };
-
-  private getAvailableStylesheets(): Promise<string[]> {
-    const stylesheets: string[] = this._stylesheetService.getStylesheets();
-    return Promise.resolve(stylesheets);
-  }
-
-  private getStylesheet(filepath: string): Promise<string> {
-    const stylesheet: string = this._stylesheetService.getStylesheet(filepath);
-    return Promise.resolve(stylesheet);
-  }
 
   private handleRendererEvent = (...args: any[]): void => {
     const event: RendererEvent = args[0];
@@ -335,7 +325,6 @@ export class Application {
   private onModalClosed(): void {
     this._menuStateService.setMainMenuState(true);
   }
-
 
   private onOpenMarkdownFile(filepath?: string): void {
     if (typeof(filepath) === 'undefined') {

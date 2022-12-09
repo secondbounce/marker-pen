@@ -1,11 +1,11 @@
 import puppeteer, { Browser, Page, PDFOptions } from 'puppeteer';
 
 import { PdfFormat } from '../model';
-import { ConfigService } from './config.service';
+import { SettingsService } from './settings.service';
 
 export class PdfExportService {
   private static _instance: PdfExportService;
-  private _configService: ConfigService = ConfigService.instance;
+  private _settingsService: SettingsService = SettingsService.instance;
   private _browserPromise: Promise<Browser> | undefined;
 
   public static get instance(): PdfExportService {
@@ -43,26 +43,26 @@ export class PdfExportService {
   }
 
   private getPdfOptions(): PDFOptions {
-    const config: PdfFormat = this._configService.getPdfFormat();
+    const pdfFormat: PdfFormat = this._settingsService.getPdfFormat();
 
     return {
       // scale?: number;
-      displayHeaderFooter: typeof(config.headerTemplate) !== 'undefined'
-                        || typeof(config.footerTemplate) !== 'undefined',
-      headerTemplate: config.headerTemplate,
-      footerTemplate: config.footerTemplate,
+      displayHeaderFooter: typeof(pdfFormat.headerTemplate) !== 'undefined'
+                        || typeof(pdfFormat.footerTemplate) !== 'undefined',
+      headerTemplate: pdfFormat.headerTemplate,
+      footerTemplate: pdfFormat.footerTemplate,
       printBackground: true,
-      landscape: config.landscape,
+      landscape: pdfFormat.landscape,
       // pageRanges?: string;
-      format: config.paperFormat,
+      format: pdfFormat.paperFormat,
       // width?: string | number;
       // height?: string | number;
       // preferCSSPageSize?: boolean;
       margin: {
-        top: config.margins.top,
-        bottom: config.margins.bottom,
-        left: config.margins.left,
-        right: config.margins.right
+        top: pdfFormat.margins.top,
+        bottom: pdfFormat.margins.bottom,
+        left: pdfFormat.margins.left,
+        right: pdfFormat.margins.right
       }
       // path?: string;
       // omitBackground?: boolean;

@@ -7,7 +7,7 @@ import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
 import { Logger, MarkdownFile } from './core/model';
 import { MessageType, ToolbarControlId } from './enums';
-import { ElectronService, LogService, MessageService, StylesheetService, TabManagerService } from './services';
+import { ElectronService, LogService, MessageService, SettingsService, StylesheetService, TabManagerService } from './services';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControls, ToolbarControlType, ToolbarDropdownOption, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
@@ -26,6 +26,7 @@ export class AppComponent implements AfterViewInit {
   constructor(private _electronService: ElectronService,
               private _tabManagerService: TabManagerService,
               private _stylesheetService: StylesheetService,
+              private _settingsService: SettingsService,
               messageService: MessageService,
               translateService: TranslateService,
               logService: LogService) {
@@ -40,7 +41,9 @@ export class AppComponent implements AfterViewInit {
     messageService.onRequest(this.handleRequest);
   }
 
-  public ngAfterViewInit(): void {
+  public async ngAfterViewInit(): Promise<void> {
+    await this._settingsService.initialize();
+
     /* Setting up the toolbar controls within the promise response avoids the dreaded
       `ExpressionChangedAfterItHasBeenCheckedError`...
     */
@@ -50,7 +53,7 @@ export class AppComponent implements AfterViewInit {
 
                               stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
                                                                                text: getFilenameFromPath(stylesheet) ?? ''
-                                                                             })
+                                                                            })
                                                   );
                               this.initializeToolbarControls(options);
                             });

@@ -1,7 +1,7 @@
 import { ReplaySubject } from 'rxjs';
 
 import { RecentItem } from '../model';
-import { ConfigService } from './config.service';
+import { SettingsService } from './settings.service';
 
 const MAX_RECENTLY_OPENED_ITEMS: number = 10;
 
@@ -12,13 +12,13 @@ const MAX_RECENTLY_OPENED_ITEMS: number = 10;
 export class RecentlyOpenedService {
   public recentlyOpened$: ReplaySubject<RecentItem[]> = new ReplaySubject<RecentItem[]>();
   private static _instance: RecentlyOpenedService;
-  private _configService: ConfigService;
+  private _settingsService: SettingsService;
   private readonly _recentlyOpened: Map<string, RecentItem> = new Map<string, RecentItem>();
 
   private constructor() {
-    this._configService = ConfigService.instance;
+    this._settingsService = SettingsService.instance;
 
-    const recentlyOpened: RecentItem[] = this._configService.getRecentItems();
+    const recentlyOpened: RecentItem[] = this._settingsService.getRecentItems();
     const start: number = Math.max(0, recentlyOpened.length - MAX_RECENTLY_OPENED_ITEMS);  /* Just in case... */
 
     /* Maps always add new items at the end so the array needs to be reversed before adding */
@@ -68,6 +68,6 @@ export class RecentlyOpenedService {
     const recentItems: RecentItem[] = Array.from(this._recentlyOpened.values())
                                            .reverse();
     this.recentlyOpened$.next(recentItems);
-    this._configService.setRecentItems(recentItems);
+    this._settingsService.setRecentItems(recentItems);
   }
 }

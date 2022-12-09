@@ -9,12 +9,13 @@ import { ipcRenderer, webFrame } from 'electron';
 import { firstValueFrom } from 'rxjs';
 
 import { AppInfo } from '~shared/app-info';
-import { Channel, RendererEvent, RendererRequest } from '~shared/enums';
+import { DEFAULT_STYLESHEET } from '~shared/constants';
+import { Channel, RendererEvent, RendererRequest, SettingKey } from '~shared/enums';
+import { stringify } from '~shared/string';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
 import { LogService } from './log.service';
 
-const DEFAULT_STYLESHEET: string = '(default)';
 const DEFAULT_STYLESHEET_PATH: string = 'assets/resources/default.css';
 const SAMPLE_STYLESHEET_PATH: string = 'assets/resources/dummy.css';
 
@@ -92,6 +93,33 @@ export class ElectronService {
     }
   }
 
+  public emitSettingsRequest(settingKey: SettingKey, ...args: any[]): Promise<any> {
+    if (this._ipcRenderer) {
+      return this._ipcRenderer.invoke(Channel.Settings, settingKey, ...args);
+    } else {
+      let result: any;
+
+      switch (settingKey) {
+        case SettingKey.All:
+          result = {
+            stylesheets: [
+              DEFAULT_STYLESHEET,
+              SAMPLE_STYLESHEET_PATH
+            ]
+          };
+          break;
+
+        default: {
+          const message: string = `Unrecognized SettingKey value - ${settingKey}`;
+          this._log.error(message);
+          return Promise.reject(message);
+        }
+      }
+
+      return Promise.resolve(result);
+    }
+  }
+
   public emitRendererRequest(request: RendererRequest, ...args: any[]): Promise<any> {
     if (this._ipcRenderer) {
       return this._ipcRenderer.invoke(Channel.RendererRequest, request, ...args);
@@ -99,12 +127,12 @@ export class ElectronService {
       let result: Promise<any>;
 
       switch (request) {
-        case RendererRequest.GetAvailableStylesheets:
-          result = Promise.resolve([
-            DEFAULT_STYLESHEET,
-            SAMPLE_STYLESHEET_PATH
-          ]);
-          break;
+        // case RendererRequest.GetAvailableStylesheets:
+        //   result = Promise.resolve([
+        //     DEFAULT_STYLESHEET,
+        //     SAMPLE_STYLESHEET_PATH
+        //   ]);
+        //   break;
 
         case RendererRequest.GetStylesheet: {
           let [filepath] = args;
@@ -135,7 +163,7 @@ export class ElectronService {
     if (this._ipcRenderer) {
       this._ipcRenderer.send(Channel.RendererEvent, event, ...args);
     } else {
-      this._log.info(`Sending event '${event}' with args ${args} (will not be received though)`);
+      this._log.info(`Sending event '${event}' with args ${stringify(args)} (will not be received though)`);
     }
   }
 }

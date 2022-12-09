@@ -2,7 +2,8 @@ export const enum Channel {
   AppInfo = 'app-info',
   MenuCommand = 'menu-command',
   RendererRequest = 'renderer-request',
-  RendererEvent = 'renderer-event'
+  RendererEvent = 'renderer-event',
+  Settings = 'settings'
 }
 
 export const enum MenuCommand {
@@ -21,7 +22,6 @@ export const enum MenuId {
 }
 
 export const enum RendererRequest {
-  GetAvailableStylesheets = 'get-stylesheets',
   GetStylesheet = 'get-stylesheet'
 }
 
@@ -30,4 +30,11 @@ export const enum RendererEvent {
   ModalOpened = 'modal-opened',
   SaveAsPdf = 'save-as-pdf',
   TabChanged = 'tab-changed'
+}
+
+export const enum SettingKey {
+  All = '',
+  PdfFormat = 'pdf-format',
+  RecentlyOpened = 'recentlyOpened',
+  Stylesheets = 'stylesheets'
 }
