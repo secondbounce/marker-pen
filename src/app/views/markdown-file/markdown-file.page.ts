@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
-import { takeUntil } from 'rxjs';
 
 import { MenuCommand, MenuId, RendererEvent } from '~shared/enums';
+import { MenuItemState } from '~shared/menu-item-state';
 import { Logger, MarkdownFile } from 'src/app/core/model';
-import { MessageType, ToolbarControlId } from 'src/app/enums';
-import { ConverterService, ElectronService, LogService, MessageService, StylesheetService } from 'src/app/services';
+import { StateChangeType, ToolbarControlId } from 'src/app/enums';
+import { ConverterService, ElectronService, LogService, StylesheetService } from 'src/app/services';
 import { TabPanelComponent } from 'src/app/tabs';
 import { PreviewComponent } from 'src/app/ui-components/preview/preview.component';
 import { ToolbarState } from 'src/app/ui-components/toolbar/toolbar.module';
@@ -28,34 +28,11 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
 
   constructor(private _converterService: ConverterService,
               private _stylesheetService: StylesheetService,
-              private _messageService: MessageService,
               private _electronService: ElectronService,
               logService: LogService) {
     super();
 
     this._log = logService.getLogger('MarkdownFilePage');
-    _stylesheetService.activeStylesheetChanged.pipe(takeUntil(this.isBeingDestroyed$))
-                                              .subscribe(stylesheet => this.onActiveStylesheetChanged(stylesheet));
-  }
-
-  public onCommand(menuCommand: MenuCommand, ..._args: any[]): void {
-    switch (menuCommand) {
-      case MenuCommand.SaveAsPdf:
-        this.saveAsPdf();
-        break;
-
-      default:
-        this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
-        break;
-    }
-  }
-
-  private saveAsPdf(): void {
-    const contents: string | undefined = this._preview.getHtmlContent();
-
-    if (contents) {
-      this._electronService.emitRendererEvent(RendererEvent.SaveAsPdf, this._filePath, contents);
-    }
   }
 
   public setData(data: MarkdownFile): void {
@@ -73,48 +50,88 @@ export class MarkdownFilePage extends TabPanelComponent<MarkdownFile> {
     this.setTitle(title, fullTitle);
   }
 
-  public set active(active: boolean) {
-    super.active = active;
+  public setActive(active: boolean): void {
+    super.setActive(active);
+
+    this._log.debug(`Setting tab ${this.title} as ${active ? 'ACTIVE' : 'INACTIVE'}`);
 
     if (active) {
-      if (this._stylesheet) {
-        /* The stylesheet has been set previously, i.e. the tab has been reactivated, so we need to
-          make sure the toolbar is updated to show it (since the previously active file may have
-          used a different one).
-        */
-        this._stylesheetService.activeStylesheet = this._stylesheet;
-      } else {
+      if (typeof(this._stylesheet) === 'undefined') {
         /* We need to know what stylesheet/CSS to use, which will be whatever the toolbar is set to */
         this._stylesheetService.getLastUsedStylesheet(this._filePath)
                                .then(data => {
                                   this._stylesheet = data.filepath;
                                   this.css = data.css;
+                                  this._log.debug(`Last used stylesheet for ${this._filePath}: ${this._stylesheet}`);
+                                  this.sendToolbarStateChange();
                                 });
       }
 
-      const toolbarState: ToolbarState = {
-        [ToolbarControlId.Stylesheets]: {
-          id: ToolbarControlId.Stylesheets,
-          enabled: true
-        }
-      };
+      /* The stylesheet had been set previously, i.e. the tab has been reactivated, we need to
+        make sure the toolbar is updated to show it (since the previously active file may have
+        used a different one).  If not, it'll be undefined, so the toolbar will not be changed.
+      */
+      this.sendToolbarStateChange();
 
-      this._messageService.send(MessageType.TabChanged, toolbarState);
-      this._electronService.emitRendererEvent(RendererEvent.TabChanged, [
+      const menuItemState: MenuItemState[] = [
         {
           id: MenuId.SaveAsPdf,
           enabled: true
         }
-      ]);
+      ];
+      this._stateChanges$.next({
+        type: StateChangeType.Menu,
+        state: menuItemState
+      });
     }
   }
 
-  private onActiveStylesheetChanged(stylesheet: string): void {
-    if (super.active && stylesheet !== this._stylesheet) {
+  private sendToolbarStateChange(): void {
+    const toolbarState: ToolbarState = {
+      [ToolbarControlId.Stylesheets]: {
+        id: ToolbarControlId.Stylesheets,
+        enabled: true,
+        value: this._stylesheet
+      }
+    };
+    this._stateChanges$.next({
+      type: StateChangeType.Toolbar,
+      state: toolbarState
+    });
+  }
+
+  public onCommand(menuCommand: MenuCommand, ...args: any[]): void {
+    switch (menuCommand) {
+      case MenuCommand.SaveAsPdf:
+        this.saveAsPdf();
+        break;
+
+      case MenuCommand.SetStylesheet: {
+        const [stylesheet] = args;
+        this.setStylesheet(stylesheet);
+        break;
+      }
+      default:
+        this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
+        break;
+    }
+  }
+
+  private saveAsPdf(): void {
+    const contents: string | undefined = this._preview.getHtmlContent();
+
+    if (contents) {
+      this._electronService.emitRendererEvent(RendererEvent.SaveAsPdf, this._filePath, contents);
+    }
+  }
+
+  private setStylesheet(stylesheet: string): void {
+    if (this._active && stylesheet !== this._stylesheet) {
       this._stylesheetService.getStylesheet(stylesheet)
                              .then(data => {
                                 this._stylesheet = data.filepath;
                                 this.css = data.css;
+                                this._log.debug(`Changing stylesheet for ${this._filePath}: ${this._stylesheet}`);
                               });
     }
   }

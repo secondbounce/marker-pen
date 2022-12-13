@@ -1,19 +1,20 @@
 import { Injectable, NgZone, Type } from '@angular/core';
-import { Observable, ReplaySubject, takeUntil } from 'rxjs';
+import { Observable, ReplaySubject, Subject, takeUntil } from 'rxjs';
 
 import { MenuCommand } from '~shared/enums';
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
-import { MessageType } from '../enums';
+import { StateChange } from '../core/model';
+import { StateChangeType } from '../enums';
 import { TabItem, TabPanel, TabPanelComponent } from '../tabs';
 import { removeFromArray } from '../utility';
 import { BaseService } from './base.service';
 import { LogService } from './log.service';
-import { MessageService } from './message.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TabManagerService extends BaseService {
+  public stateChanges$: Observable<StateChange>;
   public tabItems$: ReplaySubject<TabItem[]> = new ReplaySubject<TabItem[]>(1);
   private _openTabHandler: ((tabPanel: TabPanel) => Observable<[string, string]>) | undefined;
   private _switchToTabHandler: ((key: string) => void) | undefined;
@@ -22,16 +23,18 @@ export class TabManagerService extends BaseService {
   private _tabItems: Map<string, TabItem> = new Map<string, TabItem>();
   /** Array of tab keys in order of activation, the active tab being last */
   private _tabItemOrder: string[] = [];
+  private _stateChanges$: Subject<StateChange> = new Subject<StateChange>();
 
   constructor(private _ngZone: NgZone,
-              private _messageService: MessageService,
               logService: LogService) {
     super(logService);
 
     this.updateTabItemValues();
+    this.stateChanges$ = this._stateChanges$.asObservable();
 
     this.isBeingDestroyed$.subscribe(() => {
       this.tabItems$.complete();
+      this._stateChanges$.complete();
     });
   }
 
@@ -51,12 +54,17 @@ export class TabManagerService extends BaseService {
     this._commandTabHandler = handler;
   }
 
+  public registerStateChanges(stateChanges$: Observable<StateChange>): void {
+    stateChanges$.pipe(takeUntil(this.isBeingDestroyed$))
+                 .subscribe(state => this._stateChanges$.next(state));
+  }
+
   public open(component: Type<TabPanelComponent<any>>, data: any): void {
     const tabPanel: TabPanel = new TabPanel(component, data);
     const key: string = tabPanel.key;
 
     /* Need to add to map first since title change handler relies on it being available */
-    this._tabItems.set(tabPanel.key, { key: tabPanel.key, title: '', fullTitle: '', active: true});
+    this._tabItems.set(tabPanel.key, { key: tabPanel.key, title: '', fullTitle: '', active: true });
 
     this._ngZone.run(() => {
       if (this._openTabHandler) {
@@ -131,7 +139,7 @@ export class TabManagerService extends BaseService {
       this.updateTabItemValues();
 
       if (this._tabItems.size == 0) {
-        this._messageService.send(MessageType.TabChanged);
+        this._stateChanges$.next({ type: StateChangeType.Empty });
       }
     }
   }

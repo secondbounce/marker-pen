@@ -28,6 +28,12 @@ export class SettingsService {
     return this._settings.stylesheets;
   }
 
+  public get defaultStylesheet(): string {
+    this.ensureSettingsInitialized();
+
+    return this._settings.defaultStylesheet;
+  }
+
   private ensureSettingsInitialized():void {
     if (typeof (this._settings) === 'undefined') {
       throw new Error('Settings not initialized');

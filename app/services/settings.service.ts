@@ -22,6 +22,9 @@ const schema: Record<string, unknown> = {
       type: 'string'
     }
   },
+  [SettingKey.DefaultStylesheet]: {
+    type: 'string'
+  },
   [SettingKey.PdfFormat]: {
     type: 'object'
   }
@@ -38,8 +41,6 @@ const DEFAULT_PDF_FORMAT: PdfFormat = {
   displayHeader: false,
   displayFooter: false
 };
-
-// TODO: get 'active' stylesheet from last session if saved somewhere?
 
 export class SettingsService {
   private static _instance: SettingsService;
@@ -62,7 +63,8 @@ export class SettingsService {
     switch (settingKey) {
       case SettingKey.All:
         result = {
-          stylesheets: this.getStylesheets()
+          stylesheets: this.getStylesheets(),
+          defaultStylesheet: this.getDefaultStylesheet()
         };
         break;
 
@@ -76,6 +78,13 @@ export class SettingsService {
 
     return Promise.resolve(result);
   };
+
+  private getDefaultStylesheet(): string {
+    return this._store.get(SettingKey.DefaultStylesheet, DEFAULT_STYLESHEET) as string;
+  }
+  // public setDefaultStylesheet(stylesheet: string): void {
+  //   this._store.set(SettingKey.DefaultStylesheet, stylesheet);
+  // }
 
   public getRecentItems(): RecentItem[] {
     return this._store.get(SettingKey.RecentlyOpened, []) as RecentItem[];

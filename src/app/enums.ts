@@ -3,10 +3,10 @@ export const enum AriaRole {
   Dialog = 'dialog'
 }
 
-
-export const enum MessageType {
-  SetActiveStylesheet = 'set-stylesheet',
-  TabChanged = 'tab-changed'
+export const enum StateChangeType {
+  Empty = '',
+  Menu = 'menu',
+  Toolbar = 'toolbar'
 }
 
 export const enum ToolbarControlId {

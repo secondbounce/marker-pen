@@ -148,9 +148,9 @@ export class ToolbarComponent {
       control.options = state.options;
     }
 
-    if (typeof(state.value) !== 'undefined') {
+    if (typeof(state.value) === 'string') {
+      control.selected = state.value;
       this._log.debug(`Updating toolbar dropdown: ${control.selected}`);
-      control.selected = state.value as string;
 
       for (const option of control.options) {
         option.selected = option.id === control.selected ? true : undefined;

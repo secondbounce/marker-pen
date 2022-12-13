@@ -3,11 +3,10 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Channel, MenuCommand, RendererEvent } from '~shared/enums';
 import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
-import { convertToText } from '~shared/string';
 import { environment } from '../environments/environment';
-import { Logger, MarkdownFile } from './core/model';
-import { MessageType, ToolbarControlId } from './enums';
-import { ElectronService, LogService, MessageService, SettingsService, StylesheetService, TabManagerService } from './services';
+import { Logger, MarkdownFile, StateChange } from './core/model';
+import { StateChangeType, ToolbarControlId } from './enums';
+import { ElectronService, LogService, SettingsService, TabManagerService } from './services';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControls, ToolbarControlType, ToolbarDropdownOption, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
@@ -25,9 +24,7 @@ export class AppComponent implements AfterViewInit {
 
   constructor(private _electronService: ElectronService,
               private _tabManagerService: TabManagerService,
-              private _stylesheetService: StylesheetService,
               private _settingsService: SettingsService,
-              messageService: MessageService,
               translateService: TranslateService,
               logService: LogService) {
     this._log = logService.getLogger('AppComponent');
@@ -37,26 +34,41 @@ export class AppComponent implements AfterViewInit {
     translateService.setDefaultLang('en');
 
     _electronService.on(Channel.MenuCommand, (...args) => this.handleMenuCommand(...args));
-    messageService.onSend(this.handleSend);
-    messageService.onRequest(this.handleRequest);
+    _tabManagerService.stateChanges$.subscribe(state => this.onStateChanges(state));
+  }
+
+  private onStateChanges(state: StateChange): void {
+    switch (state.type) {
+      case StateChangeType.Toolbar:
+        this._toolbar.state = state.state as ToolbarState;
+        break;
+
+      case StateChangeType.Menu:
+        this._electronService.emitRendererEvent(RendererEvent.StateChanged, state.state);
+        break;
+
+      case StateChangeType.Empty:
+        this._toolbar.state = this._emptyToolbarState;
+        this._electronService.emitRendererEvent(RendererEvent.StateChanged);
+        break;
+
+      default:
+        this._log.error(`Unrecognized StateChangeType enum - ${state.type}`);
+        break;
+    }
   }
 
   public async ngAfterViewInit(): Promise<void> {
     await this._settingsService.initialize();
 
-    /* Setting up the toolbar controls within the promise response avoids the dreaded
-      `ExpressionChangedAfterItHasBeenCheckedError`...
-    */
-    this._stylesheetService.getAvailableStylesheets()
-                           .then((stylesheets: string[]) => {
-                              const options: ToolbarDropdownOption[] = [];
+    const stylesheets: string[] = this._settingsService.availableStylesheets;
+    const options: ToolbarDropdownOption[] = [];
 
-                              stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
-                                                                               text: getFilenameFromPath(stylesheet) ?? ''
-                                                                            })
-                                                  );
-                              this.initializeToolbarControls(options);
-                            });
+    stylesheets.forEach(stylesheet => options.push({ id: stylesheet,
+                                                     text: getFilenameFromPath(stylesheet) ?? ''
+                                                  })
+                        );
+    this.initializeToolbarControls(options);
   }
 
   private initializeToolbarControls(options: ToolbarDropdownOption[]): void {
@@ -73,7 +85,7 @@ export class AppComponent implements AfterViewInit {
         id: ToolbarControlId.Stylesheets,
         type: ToolbarControlType.Dropdown,
         tooltip: 'Stylesheets',
-        selected: this._stylesheetService.activeStylesheet,
+        selected: this._settingsService.defaultStylesheet,
         options,
         enabled: false
       }
@@ -97,7 +109,7 @@ export class AppComponent implements AfterViewInit {
       }
 // END-TODO
       case ToolbarControlId.Stylesheets:
-        this._stylesheetService.activeStylesheet = result.value as string;
+        this._tabManagerService.sendCommand(MenuCommand.SetStylesheet, result.value);
         break;
 
       default:
@@ -132,56 +144,4 @@ export class AppComponent implements AfterViewInit {
     };
     this._tabManagerService.open(MarkdownFilePage, data);
   }
-
-  private handleSend = (...args: any[]): void => {
-    const message: MessageType = args[0];
-
-    switch (message) {
-      case MessageType.SetActiveStylesheet: {
-        const [, stylesheet] = args;
-        this.handleSetActiveStylesheet(stylesheet);
-        break;
-      }
-      case MessageType.TabChanged: {
-        const [, toolbarState] = args;
-        this._toolbar.state = toolbarState ?? this._emptyToolbarState;
-
-        if (typeof(toolbarState) === 'undefined') {
-          this._electronService.emitRendererEvent(RendererEvent.TabChanged);
-        }
-        break;
-      }
-      default:
-        this._log.error(`Unsupported MessageType - ${message}`);
-        break;
-    }
-  };
-
-  private handleSetActiveStylesheet(stylesheet: string): void {
-    const currentStylesheet: string = this._toolbar.state[ToolbarControlId.Stylesheets].value as string;
-
-    if (stylesheet !== currentStylesheet) {
-      this._toolbar.state = {
-        [ToolbarControlId.Stylesheets]: {
-          id: ToolbarControlId.Stylesheets,
-          value: stylesheet,
-          enabled: true
-        }
-      };
-    }
-  }
-
-// TODO: currently unused
-  private handleRequest = async (...args: any[]): Promise<any> => {
-    const message: MessageType = args[0];
-
-    switch (message) {
-      default: {
-        const error: string = `Unsupported MessageType - ${convertToText(args)}`;
-        this._log.error(error);
-// TODO: need to display the error message somehow
-        return Promise.reject(new Error(error));
-      }
-    }
-  };
 }

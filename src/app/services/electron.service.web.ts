@@ -105,7 +105,8 @@ export class ElectronService {
             stylesheets: [
               DEFAULT_STYLESHEET,
               SAMPLE_STYLESHEET_PATH
-            ]
+            ],
+            defaultStylesheet: DEFAULT_STYLESHEET
           };
           break;
 

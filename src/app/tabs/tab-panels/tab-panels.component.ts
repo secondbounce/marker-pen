@@ -17,11 +17,11 @@ export class TabPanelsComponent implements OnDestroy {
   @ViewChild(TabPanelsDirective, {static: true}) private _tabPanelHost!: TabPanelsDirective;
   private _componentRefs: Map<string, ComponentRef<TabPanelComponent<any>>> = new Map<string, ComponentRef<TabPanelComponent<any>>>();
 
-  constructor(tabManagerService: TabManagerService) {
-    tabManagerService.registerOpenTabHandler(this.openTab);
-    tabManagerService.registerSwitchToTabHandler(this.switchToTab);
-    tabManagerService.registerCloseTabHandler(this.closeTab);
-    tabManagerService.registerCommandHandler(this.sendCommand);
+  constructor(private _tabManagerService: TabManagerService) {
+    _tabManagerService.registerOpenTabHandler(this.openTab);
+    _tabManagerService.registerSwitchToTabHandler(this.switchToTab);
+    _tabManagerService.registerCloseTabHandler(this.closeTab);
+    _tabManagerService.registerCommandHandler(this.sendCommand);
   }
 
   public ngOnDestroy(): void {
@@ -32,11 +32,14 @@ export class TabPanelsComponent implements OnDestroy {
     const viewContainerRef: ViewContainerRef = this._tabPanelHost.viewContainerRef;
 
     const componentRef: ComponentRef<TabPanelComponent<any>> = viewContainerRef.createComponent<TabPanelComponent<any>>(tabPanel.component);
-    componentRef.instance.setData(tabPanel.data);
+    const component: TabPanelComponent<any> = componentRef.instance;
+    component.setData(tabPanel.data);
+
+    this._tabManagerService.registerStateChanges(component.stateChanges$);
     this._componentRefs.set(tabPanel.key, componentRef);
     this.setActiveTab(componentRef);
 
-    return componentRef.instance.titles$;
+    return component.titles$;
   };
 
   private switchToTab = (key: string): void => {
@@ -77,7 +80,7 @@ export class TabPanelsComponent implements OnDestroy {
       avoids the possibility of two panels both being flagged as 'active' at the same time.
     */
     for (const [, ref] of this._componentRefs) {
-      ref.instance.active = false;
+      ref.instance.setActive(false);
     }
 
     /* Then, make sure the tab to be activated is attached so we don't get any FOIC.
@@ -92,6 +95,6 @@ export class TabPanelsComponent implements OnDestroy {
     }
 
     /* And finally, set the active tab panel as 'active' */
-    componentRef.instance.active = true;
+    componentRef.instance.setActive(true);
   }
 }

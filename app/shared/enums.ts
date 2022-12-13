@@ -6,9 +6,11 @@ export const enum Channel {
   Settings = 'settings'
 }
 
+
 export const enum MenuCommand {
   OpenMarkdown = 'open-markdown',
-  SaveAsPdf = 'save-as-pdf'
+  SaveAsPdf = 'save-as-pdf',
+  SetStylesheet = 'set-stylesheet'
 }
 
 export const enum MenuId {
@@ -29,12 +31,15 @@ export const enum RendererEvent {
   ModalClosed = 'modal-closed',
   ModalOpened = 'modal-opened',
   SaveAsPdf = 'save-as-pdf',
-  TabChanged = 'tab-changed'
+  StateChanged = 'state-changed'
 }
 
+
 export const enum SettingKey {
+  /* These values are the JSON keys into the settings file */
   All = '',
-  PdfFormat = 'pdf-format',
+  DefaultStylesheet = 'defaultStylesheet',
+  PdfFormat = 'pdfFormat',
   RecentlyOpened = 'recentlyOpened',
   Stylesheets = 'stylesheets'
 }

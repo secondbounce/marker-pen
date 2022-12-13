@@ -306,7 +306,7 @@ export class Application {
         }
         break;
       }
-      case RendererEvent.TabChanged: {
+      case RendererEvent.StateChanged: {
         const [, menuState] = args;
         this._menuStateService.setState(menuState ?? this._emptyMenuState);
         break;
