@@ -59,7 +59,7 @@ export class ToolbarComponent {
           const dropdown: ToolbarDropdown = control as ToolbarDropdown;
           let value: string = dropdown.selected ?? '';
 
-          if (value.length === 0 && dropdown.options && dropdown.options.length > 0) {
+          if (value.length === 0 && dropdown.options.length > 0) {
             /* SELECT element will show first option as selected, so set it explicitly */
             value = dropdown.options[0].id;
             dropdown.selected = value;
@@ -110,30 +110,24 @@ export class ToolbarComponent {
       const state: ToolbarControlState = this._state[control.id];
 
       if (state) {
-        if (state.enabled) {
+        if (typeof(state.enabled) !== 'undefined') {
           control.enabled = state.enabled;
         }
 
-        if (typeof(state.value) !== 'undefined') {
-          switch (control.type) {
-            case ToolbarControlType.Checkbox:
-              (control as ToolbarCheckbox).checked = state.value as boolean;
-              break;
+        switch (control.type) {
+          case ToolbarControlType.Checkbox:
+            this.updateCheckbox(control as ToolbarCheckbox, state);
+            break;
 
-            case ToolbarControlType.Dropdown:
-              (control as ToolbarDropdown).selected = state.value as string;
-              break;
+          case ToolbarControlType.Dropdown:
+            this.updateDropdown(control as ToolbarDropdown, state);
+            break;
 
-            default:
-              this._log.assert(control.type === ToolbarControlType.Button,
-                              `Unrecognized toolbar control type - ${control.type}`);
-              /* No value */
-              break;
-          }
-        }
-
-        if (control.type === ToolbarControlType.Dropdown && state.options) {
-          (control as ToolbarDropdown).options = state.options;
+          default:
+            this._log.assert(control.type === ToolbarControlType.Button,
+                             `Unrecognized toolbar control type - ${control.type}`);
+            /* No value */
+            break;
         }
       }
 
@@ -142,6 +136,27 @@ export class ToolbarComponent {
 
     this._controls = controls;
   }
+
+  private updateCheckbox(control: ToolbarCheckbox, state: ToolbarControlState): void {
+    if (typeof(state.value) !== 'undefined') {
+      control.checked = state.value as boolean;
+    }
+  }
+
+  private updateDropdown(control: ToolbarDropdown, state: ToolbarControlState): void {
+    if (state.options) {
+      control.options = state.options;
+    }
+
+    if (typeof(state.value) !== 'undefined') {
+      this._log.debug(`Updating toolbar dropdown: ${control.selected}`);
+      control.selected = state.value as string;
+
+      for (const option of control.options) {
+        option.selected = option.id === control.selected ? true : undefined;
+      }
+    }
+}
 
   private cloneState(newState?: ToolbarState): ToolbarState {
     const clone: ToolbarState = {};

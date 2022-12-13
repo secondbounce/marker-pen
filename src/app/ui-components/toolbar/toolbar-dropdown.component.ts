@@ -14,7 +14,7 @@ import { ToolbarButton, ToolbarCheckbox, ToolbarControlResult, ToolbarControlTyp
   ]
 })
 export class ToolbarDropdownComponent {
-  @Input() public dropdown!: ToolbarDropdown;
+  public dropdown!: ToolbarDropdown;
   @Output() public dropdownChange: EventEmitter<ToolbarControlResult> = new EventEmitter<ToolbarControlResult>();
 
   @Input()

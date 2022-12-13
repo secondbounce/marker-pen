@@ -16,7 +16,7 @@ import { ToolbarButton, ToolbarCheckbox, ToolbarControlResult, ToolbarControlTyp
   ]
 })
 export class ToolbarCheckboxComponent {
-  @Input() public checkbox!: ToolbarCheckbox;
+  public checkbox!: ToolbarCheckbox;
   @Output() public checkboxChange: EventEmitter<ToolbarControlResult> = new EventEmitter<ToolbarControlResult>();
 
   @Input()

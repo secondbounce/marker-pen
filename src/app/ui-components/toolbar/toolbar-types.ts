@@ -24,12 +24,13 @@ export interface ToolbarCheckbox extends ToolbarControl {
 
 export interface ToolbarDropdown extends ToolbarControl {
   selected?: string;
-  options: ToolbarDropdownOption[] | undefined;
+  options: ToolbarDropdownOption[];
 }
 
 export interface ToolbarDropdownOption {
   id: string;
   text: string;
+  selected?: boolean;
 }
 
 export interface ToolbarControlResult {

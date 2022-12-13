@@ -1,3 +1,3 @@
 <select [title]="this.dropdown.tooltip" [disabled]="!this.dropdown.enabled" (click)="onDropdownClick($event)">
-	<option *ngFor="let option of this.dropdown.options" [value]="option.id" [selected]="this.dropdown.selected === option.id">{{ option.text }}</option>
+	<option *ngFor="let option of this.dropdown.options" [value]="option.id" [selected]="option.selected">{{ option.text }}</option>
 </select>
