@@ -18,6 +18,8 @@ export const enum MenuId {
     FileOpen = 'file_open',
     FileOpenRecent = 'file_open-recent',
     SaveAsPdf = 'save_as_pdf',
+    FileOpenRecentItem = 'file_open-recent_recent',
+    FileOpenRecentClear = 'file_open-recent_clear',
     FileExit = 'file_exit',
   Edit = 'edit',
   Application = 'application'

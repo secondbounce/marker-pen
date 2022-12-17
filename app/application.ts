@@ -181,8 +181,9 @@ export class Application {
     const template: Array<MenuItemConstructorOptions> = [];
 
     if (recentItems.length > 0) {
-      recentItems.forEach(recentItem => {
+      recentItems.forEach((recentItem, index) => {
         template.push({
+                  id: MenuId.FileOpenRecentItem + index.toString(),
                   label: recentItem.label,
                   click: (): void => { this.onOpenMarkdownFile(recentItem.label) }
                 });
@@ -192,6 +193,7 @@ export class Application {
     }
 
     template.push({
+              id: MenuId.FileOpenRecentClear,
               label: 'Clear Recently Opened',
               enabled: (recentItems.length > 0),
               click: (): void => { this._recentlyOpenedService.clear() }

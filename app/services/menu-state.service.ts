@@ -2,6 +2,7 @@ import { Menu, MenuItem } from 'electron';
 
 import { Logger } from '../logger';
 import { MenuItemState } from '../shared/menu-item-state';
+import { convertToText } from '../shared/string';
 
 const ALWAYS_ENABLED_ROLES: string[] = [
   'close',
@@ -88,7 +89,7 @@ export class MenuStateService {
           this.disableMenuItem(menuItem);
 
           if (menuItem.submenu) {
-            this.disableMenu(menu, [...ancestors, menuItem]);   /* Need to clone array */
+            this.disableMenu(menuItem.submenu, [...ancestors, menuItem]);   /* Need to clone array */
           }
         }
       }
@@ -148,6 +149,9 @@ export class MenuStateService {
   }
 
   private getMenuItemState(menuItem: MenuItem): MenuItemState {
+    this._log.assert(typeof(menuItem.id) === 'undefined',
+                     `Menu item has not been assigned an id - ${convertToText(menuItem)}`);
+
     const state: MenuItemState = {
       id: menuItem.id,
       enabled: menuItem.enabled
