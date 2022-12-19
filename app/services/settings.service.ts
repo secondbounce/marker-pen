@@ -1,7 +1,6 @@
 import { Logger } from '../logger';
-import { PdfFormat, RecentItem } from '../model';
-import { DEFAULT_STYLESHEET } from '../shared/constants';
-import { SettingKey } from '../shared/enums';
+import { RecentItem } from '../model';
+import { DEFAULT_STYLESHEET, PdfFormat, SettingKey } from '../shared';
 
 /* eslint-disable-next-line @typescript-eslint/typedef, @typescript-eslint/no-var-requires -- this
   library uses `#private` variables that are incompatible with the current target.  So for now, we
@@ -64,7 +63,8 @@ export class SettingsService {
       case SettingKey.All:
         result = {
           stylesheets: this.getStylesheets(),
-          defaultStylesheet: this.getDefaultStylesheet()
+          defaultStylesheet: this.getDefaultStylesheet(),
+          pdfFormat: this.getPdfFormat()
         };
         break;
 
@@ -79,12 +79,31 @@ export class SettingsService {
     return Promise.resolve(result);
   };
 
+  public handleSettingsEvent = (...args: any[]): void => {
+    const settingKey: SettingKey = args[0];
+
+    switch (settingKey) {
+      case SettingKey.All: {
+        const [, settings] = args;
+        this.setStylesheets(settings.stylesheets);
+        this.setDefaultStylesheet(settings.defaultStylesheet);
+        this.setPdfFormat(settings.pdfFormat);
+        break;
+      }
+      default: {
+        const message: string = `Unsupported SettingKey - ${settingKey}`;
+        this._log.error(message);
+// TODO: need to display the error message somehow
+      }
+    }
+  };
+
   private getDefaultStylesheet(): string {
     return this._store.get(SettingKey.DefaultStylesheet, DEFAULT_STYLESHEET) as string;
   }
-  // public setDefaultStylesheet(stylesheet: string): void {
-  //   this._store.set(SettingKey.DefaultStylesheet, stylesheet);
-  // }
+  public setDefaultStylesheet(stylesheet: string): void {
+    this._store.set(SettingKey.DefaultStylesheet, stylesheet);
+  }
 
   public getRecentItems(): RecentItem[] {
     return this._store.get(SettingKey.RecentlyOpened, []) as RecentItem[];
@@ -101,12 +120,9 @@ export class SettingsService {
   }
 
   private getStylesheets(): string[] {
-    const stylesheets: string[] = this._store.get(SettingKey.Stylesheets, []) as string[];
-    stylesheets.unshift(DEFAULT_STYLESHEET);
-
-    return stylesheets;
+    return this._store.get(SettingKey.Stylesheets, [DEFAULT_STYLESHEET]) as string[];
   }
-  // public setStylesheets(stylesheets: string[]): void {
-  //   this._store.set(SettingKey.Stylesheets, stylesheets);
-  // }
+  public setStylesheets(stylesheets: string[]): void {
+    this._store.set(SettingKey.Stylesheets, stylesheets);
+  }
 }

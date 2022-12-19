@@ -1,3 +1,5 @@
+@import "variables";
+
 @mixin button() {
   background-color: var(--app-button-bg);
   border: 1px solid var(--app-button-border);
@@ -14,8 +16,6 @@
 }
 
 @mixin image-button() {
-  @include button;
-
   padding: 0;
 
   svg-icon {
@@ -44,4 +44,64 @@
     background: $background-color;
   }
   scrollbar-color: $foreground-color $background-color;
+}
+
+%modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .background {
+    animation: $animation-duration-fast fade-in both;
+    background-color: var(--app-modal-overlay-bg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  form {
+    animation: $animation-duration fade-in $animation-delay both,    /* Add an animation delay equal to the overlay animation duration to */
+               $animation-duration slide-up $animation-delay both;   /* wait for the overlay to appear before animation in the dialog */
+    background-color: var(--app-form-bg);
+    border: 1px solid var(--app-form-border);
+    padding: 0 $form-padding $form-padding;
+    max-width: 400px;   /* Limit width if screen is wider than 400px */
+    width: 100%;
+    z-index: 2;
+
+    &::before {
+      /* Create a dummy header */
+      background-color: var(--app-form-header-bg);
+      color: var(--app-form-header-color);
+      content: attr(aria-label);
+      display: block;
+      line-height: 1;
+      margin: 0 (-1 * $form-padding);
+      padding: 0.5em;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      transform: translateY(10%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    form {
+      animation: none;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import log from 'electron-log';
 
-import { configureLogging } from '~shared/log-config';
+import { configureLogging } from '~shared/index';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
 

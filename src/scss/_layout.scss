@@ -2,3 +2,46 @@ body {
   font-family: system-ui;
   font-size: 9pt;
 }
+
+.form {
+  align-items: center;
+  column-gap: $control-padding;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  row-gap: $control-padding;
+
+}
+
+.form-fullwidth {
+  grid-column: 1 / 3;
+}
+
+.form-actions {
+  align-items: center;
+  display: flex;
+  gap: $control-padding;
+  justify-content: flex-end;
+
+  > span {
+    flex-grow: 1;
+  }
+  button {
+    min-width: 5em;
+  }
+}
+
+.radio-buttons {
+  display: flex;
+
+  input[type="radio"] + label {
+    flex-grow: 1;
+  }
+}
+
+.ellipsis-left {
+  direction: rtl;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

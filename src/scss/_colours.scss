@@ -8,7 +8,7 @@ $mid-grey:      #cacaca;
 $dark-grey:     #999;
 $almost-black:  #4d4d4d;
 
-
+$primary:       #ea8808;
 
 :root {
   /* Default CSS custom variables to simplify global changes.
@@ -18,6 +18,7 @@ $almost-black:  #4d4d4d;
   --app-default-border-color: #{$dark-grey};
   --app-default-control-panel-bg: #{$lightest-grey};
   --app-default-pane-bg: white;
+  --app-default-invalid: #da0000;
 
   /* CSS custom variables for specific attributes */
   --app-button-color: var(--app-default-color);
@@ -49,6 +50,16 @@ $almost-black:  #4d4d4d;
   --app-tab-inactive-color: var(--app-default-color);
   --app-tab-inactive-bg: #{$light-grey};
   --app-tabpanel-bg: var(--app-default-pane-bg);
+
+  --app-modal-overlay-bg: #00000020;
+  --app-form-bg: var(--app-default-pane-bg);
+  --app-form-border: var(--app-default-border-color);
+  --app-form-header-bg: #{$primary};
+  --app-form-header-color: white;
+  --app-control-border: var(--app-default-border-color);
+  --app-sidebar-active-border: #{$primary};
+  --app-sidebar-hover: #{$lightest-grey};
+  --app-sidebar-panel-border: #{$light-grey};
 }
 
 @media (prefers-color-scheme: dark) {

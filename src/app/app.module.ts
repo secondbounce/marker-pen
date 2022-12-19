@@ -1,5 +1,5 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ApplicationRef, DoBootstrap, NgModule } from '@angular/core';
+import { ApplicationRef, DoBootstrap, Injector, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { TabPanelsModule } from './tabs/tab-panels/tab-panels.module';
 import { TabstripModule } from './tabs/tabstrip/tabstrip.module';
 import { ToolbarModule } from './ui-components/toolbar/toolbar.module';
 import { MarkdownFileModule } from './views/markdown-file/markdown-file.module';
+import { SettingsModule } from './views/settings/settings.module';
 
 // AoT requires an exported function for factories
 // eslint-disable-next-line @typescript-eslint/typedef
@@ -32,6 +33,7 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
       }
     }),
     MarkdownFileModule,
+    SettingsModule,
     TabPanelsModule,
     TabstripModule,
     ToolbarModule
@@ -41,7 +43,7 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
   bootstrap: [/* See below */]
 })
 export class AppModule implements DoBootstrap {
-  // constructor(private _injector: Injector) {}
+  constructor(private _injector: Injector) {}
 
   public ngDoBootstrap(appRef: ApplicationRef): void {
     /* In order to trigger this event handler so we can initialize the custom elements,
@@ -51,6 +53,6 @@ export class AppModule implements DoBootstrap {
     appRef.bootstrap(AppComponent);
 
     /* Register web components */
-    //MessageBoxModule.define(this._injector);
+    SettingsModule.define(this._injector);
   }
 }

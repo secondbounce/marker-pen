@@ -1,15 +1,16 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Channel, MenuCommand, RendererEvent } from '~shared/enums';
-import { SAMPLE_MARKDOWN } from '~shared/sample-constants';
+import { Channel, MenuCommand, RendererEvent, SAMPLE_MARKDOWN } from '~shared/index';
 import { environment } from '../environments/environment';
 import { Logger, MarkdownFile, StateChange } from './core/model';
 import { StateChangeType, ToolbarControlId } from './enums';
-import { ElectronService, LogService, SettingsService, TabManagerService } from './services';
+import { ElectronService, LogService, ModalService, SettingsService, TabManagerService } from './services';
+import { ModalResult } from './ui-components';
 import { ToolbarComponent, ToolbarControlResult, ToolbarControls, ToolbarControlType, ToolbarDropdownOption, ToolbarState } from './ui-components/toolbar/toolbar.module';
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
+import { SettingsComponent } from './views/settings/settings.module';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ export class AppComponent implements AfterViewInit {
   constructor(private _electronService: ElectronService,
               private _tabManagerService: TabManagerService,
               private _settingsService: SettingsService,
+              private _modalService: ModalService,
               translateService: TranslateService,
               logService: LogService) {
     this._log = logService.getLogger('AppComponent');
@@ -80,6 +82,12 @@ export class AppComponent implements AfterViewInit {
         tooltip: 'Open dummy markdown for testing',
         icon: 'assets/icons/close.svg'
       },
+      {
+        id: 'settings',
+        type: ToolbarControlType.Button,
+        tooltip: 'Settings...',
+        icon: 'assets/icons/close.svg'
+      },
 // END-TODO
       {
         id: ToolbarControlId.Stylesheets,
@@ -107,6 +115,10 @@ export class AppComponent implements AfterViewInit {
         this.openMarkdownFile(`c:\\path\\to\\the\\sample\\${id}.md`, id.toString() + '\n\n' + SAMPLE_MARKDOWN);
         break;
       }
+      case 'settings':
+        this.showSettings();
+        break;
+
 // END-TODO
       case ToolbarControlId.Stylesheets:
         this._tabManagerService.sendCommand(MenuCommand.SetStylesheet, result.value);
@@ -131,6 +143,10 @@ export class AppComponent implements AfterViewInit {
         this._tabManagerService.sendCommand(menuCommand, ...args);
         break;
 
+      case MenuCommand.Settings:
+        this.showSettings();
+        break;
+
       default:
         this._log.error(`Unsupported MenuCommand - ${menuCommand}`);
         break;
@@ -143,5 +159,20 @@ export class AppComponent implements AfterViewInit {
       contents
     };
     this._tabManagerService.open(MarkdownFilePage, data);
+  }
+
+  private showSettings(): void {
+    this._modalService.show<SettingsComponent>(SettingsComponent.elementTag)
+                      .subscribe({
+                        next: (result: ModalResult) => {
+                          if (result.ok) {
+// TODO: will updated settings change existing tabs?
+                          }
+                        },
+                        error: (error: any) => {
+// TODO: need to display the error message somehow
+                          this._log.warn(error);
+                        }
+                      });
   }
 }

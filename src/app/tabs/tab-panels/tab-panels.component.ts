@@ -1,7 +1,7 @@
 import { Component, ComponentRef, OnDestroy, ViewChild, ViewContainerRef, ViewEncapsulation, ViewRef } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { MenuCommand } from '~shared/enums';
+import { MenuCommand } from '~shared/index';
 import { TabManagerService } from '../../services';
 import { TabPanel } from '../tab-panel';
 import { TabPanelComponent } from '../tab-panel.component';

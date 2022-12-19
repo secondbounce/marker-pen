@@ -1,7 +1,57 @@
+//@import "variables";
 @import 'mixins';
 
-button {
+.form-validation {
+  color: var(--app-default-invalid);
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  @include button;
+
   &:has(svg-icon) {
     @include image-button;
+  }
+}
+
+input[type="color"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="file"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="reset"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select,
+textarea {
+	border: 1px solid var(--app-control-border);
+  border-radius: 2px;
+  padding: 1px 2px;   /* For consistency (SELECTs don't get padding by default) */
+
+  &.ng-touched.ng-invalid,
+  &.ng-dirty.ng-invalid {
+    border: 1px solid var(--app-default-invalid);
+  }
+}
+
+input[type="number"] {
+  text-align: end;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+
+  &.ng-touched.ng-invalid,
+  &.ng-dirty.ng-invalid {
+    color: var(--app-default-invalid);
   }
 }

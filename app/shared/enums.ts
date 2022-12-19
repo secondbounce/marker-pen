@@ -6,10 +6,10 @@ export const enum Channel {
   Settings = 'settings'
 }
 
-
 export const enum MenuCommand {
   OpenMarkdown = 'open-markdown',
   SaveAsPdf = 'save-as-pdf',
+  Settings = 'show-settings',
   SetStylesheet = 'set-stylesheet'
 }
 
@@ -17,16 +17,18 @@ export const enum MenuId {
   File = 'file',
     FileOpen = 'file_open',
     FileOpenRecent = 'file_open-recent',
-    SaveAsPdf = 'save_as_pdf',
     FileOpenRecentItem = 'file_open-recent_recent',
     FileOpenRecentClear = 'file_open-recent_clear',
+    SaveAsPdf = 'file_save-as-pdf',
+    Settings = 'file_settings',
     FileExit = 'file_exit',
   Edit = 'edit',
   Application = 'application'
 }
 
 export const enum RendererRequest {
-  GetStylesheet = 'get-stylesheet'
+  GetStylesheet = 'get-stylesheet',
+  SelectStylesheet = 'select-stylesheet'
 }
 
 export const enum RendererEvent {
@@ -35,7 +37,6 @@ export const enum RendererEvent {
   SaveAsPdf = 'save-as-pdf',
   StateChanged = 'state-changed'
 }
-
 
 export const enum SettingKey {
   /* These values are the JSON keys into the settings file */

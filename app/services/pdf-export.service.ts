@@ -1,6 +1,6 @@
 import puppeteer, { Browser, Page, PDFOptions } from 'puppeteer';
 
-import { PdfFormat } from '../model';
+import { PdfFormat } from '../shared/pdf-format';
 import { SettingsService } from './settings.service';
 
 export class PdfExportService {
@@ -14,7 +14,7 @@ export class PdfExportService {
 
   /** Ensures that any Puppeteer resources are released */
   public close(): void {
-    if (this._browserPromise) {
+    if (typeof(this._browserPromise) !== 'undefined') {
       this._browserPromise.then(browser => {
                             browser.close();
                             this._browserPromise = undefined;

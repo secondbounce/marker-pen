@@ -1,0 +1,81 @@
+@import 'mixins';
+
+:host {
+  @extend %modal;
+
+  form {
+    align-items: start;
+    display: grid;
+    gap: $form-padding;
+    grid-template-columns: auto 1fr;
+
+    &::before {
+      grid-column: 1 / 3;
+    }
+  }
+
+  aside {
+    border-inline-end: solid 1px var(--app-sidebar-panel-border);
+    grid-column: 1 / 2;
+    height: 100%;
+    padding-inline-end: 0.75em;
+
+    input {
+      appearance: none;
+      margin: 0;
+      position: absolute;
+
+      &:checked + label {
+        border-inline-color: var(--app-sidebar-active-border);
+      }
+    }
+    label {
+      display: block;
+      padding: 0.5em;
+      border-inline-start: solid 4px transparent;
+
+      &:hover {
+        background-color: var(--app-sidebar-hover);
+      }
+    }
+  }
+
+  section {
+    grid-area: 2 / 2 / 3 / 3;   /* Specify col *and* row so all sections occupy same space */
+    visibility: hidden;
+
+    &.active {
+      visibility: visible;
+    }
+  }
+
+  footer {
+    grid-column: 1 / 3;
+  }
+
+  .stylesheets {
+    align-content: space-evenly;
+    align-items: center;
+    display: grid;
+    gap: 0.25em 0.75em;
+    grid-template-columns: auto 1fr auto;
+
+    input {
+      grid-column: 1 / 2;
+      margin: 0;
+    }
+    label {
+      grid-column: 2 / 3;
+    }
+    button {
+      &.header {
+        grid-column: 1 / 4;
+        max-width: fit-content;
+        justify-self: end;
+      }
+      &.icon-button {
+        grid-column: 3 / 4;
+      }
+    }
+  }
+}

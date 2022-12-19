@@ -1,7 +1,7 @@
 import { Injectable, NgZone, Type } from '@angular/core';
 import { Observable, ReplaySubject, Subject, takeUntil } from 'rxjs';
 
-import { MenuCommand } from '~shared/enums';
+import { MenuCommand } from '~shared/index';
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
 import { StateChange } from '../core/model';
 import { StateChangeType } from '../enums';

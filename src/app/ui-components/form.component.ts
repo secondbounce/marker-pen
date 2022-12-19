@@ -2,7 +2,7 @@ import { Directive, OnDestroy } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
-import { stringify } from '~shared/string';
+import { stringify } from '~shared/index';
 
 /** Implements: OnDestroy */
 @Directive()

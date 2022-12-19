@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { RendererRequest } from '~shared/enums';
+import { RendererRequest } from '~shared/index';
 import { Stylesheet } from '../core/model';
 import { BaseService } from './base.service';
 import { ElectronService } from './electron.service';

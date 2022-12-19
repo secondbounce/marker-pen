@@ -1,0 +1,84 @@
+<div class="background"></div>
+<form [formGroup]="this.formGroup" aria-label="Settings" role="document" (ngSubmit)="onSubmit()">
+	<aside>
+		<input type="radio" id="stylesheets" formControlName="panes" value="stylesheets" (click)="setActivePane($event)">
+		<label for="stylesheets">Stylesheets</label>
+		<input type="radio" id="pdfFormat" formControlName="panes" value="pdfFormat" (click)="setActivePane($event)">
+		<label for="pdfFormat">PDF Format</label>
+	</aside>
+	<section [ngClass]="{ 'stylesheets': true, 'active': this.activePane === 'stylesheets' }">
+		<button type="button" class="header" (click)="addStylesheet()">Add...</button>
+		<ng-container *ngFor="let stylesheet of this.stylesheets">
+			<input type="radio" [id]="stylesheet.name" formControlName="defaultStylesheet" [value]="stylesheet.name">
+			<label [for]="stylesheet.name" [title]="stylesheet.name" class="ellipsis-left">{{ stylesheet.name }}</label>
+			<button *ngIf="stylesheet.canRemove" title="Remove" class="icon-button" (click)="removeStylesheet(stylesheet.name)"><svg-icon src="assets/icons/trash-outline.svg" title="Remove"></svg-icon></button>
+		</ng-container>
+	</section>
+	<section [ngClass]="{ 'form': true, 'active': this.activePane === 'pdfFormat' }">
+		<label for="paperFormat">Paper size</label>
+		<select id="paperFormat" formControlName="paperFormat">
+			<option value="letter">Letter</option>
+			<option value="legal">Legal</option>
+			<option value="tabloid">Tabloid</option>
+			<option value="ledger">Ledger</option>
+			<option value="a0">A0</option>
+			<option value="a1">A1</option>
+			<option value="a2">A2</option>
+			<option value="a3">A3</option>
+			<option value="a4">A4</option>
+			<option value="a5">A5</option>
+			<option value="a6">A6</option>
+		</select>
+		<label>Orientation</label>
+		<div class="radio-buttons">
+			<input type="radio" id="portrait" formControlName="orientation" value="portrait">
+			<label for="portrait">Portrait</label>
+			<input type="radio" id="landscape" formControlName="orientation" value="landscape">
+			<label for="landscape">Landscape</label>
+		</div>
+		<label>Top</label>
+		<div>
+			<input type="number" formControlName="topMarginValue" min="0" max="100">
+			<select formControlName="topMarginUnits">
+				<option value="mm">mm</option>
+				<option value="in">inches</option>
+			</select>
+		</div>
+		<label>Bottom</label>
+		<div>
+			<input type="number" formControlName="bottomMarginValue" min="0" max="100">
+			<select formControlName="bottomMarginUnits">
+				<option value="mm">mm</option>
+				<option value="in">inches</option>
+			</select>
+		</div>
+		<label>Left</label>
+		<div>
+			<input type="number" formControlName="leftMarginValue" min="0" max="100">
+			<select formControlName="leftMarginUnits">
+				<option value="mm">mm</option>
+				<option value="in">inches</option>
+			</select>
+		</div>
+		<label>Right</label>
+		<div>
+			<input type="number" formControlName="rightMarginValue" min="0" max="100">
+			<select formControlName="rightMarginUnits">
+				<option value="mm">mm</option>
+				<option value="in">inches</option>
+			</select>
+		</div>
+		<div class="form-fullwidth">
+			<input type="checkbox" id="displayHeader" formControlName="displayHeader">
+			<label for="displayHeader">Display header</label>
+		</div>
+		<div class="form-fullwidth">
+			<input type="checkbox" id="displayFooter" formControlName="displayFooter">
+			<label for="displayFooter">Display footer</label>
+		</div>
+	</section>
+	<footer class="form-actions">
+		<button type="submit">Save</button>
+		<button type="button" (click)="onClickCancel()">Cancel</button>
+	</footer>
+</form>

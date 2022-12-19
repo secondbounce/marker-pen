@@ -6,7 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import * as DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
-import { stringify } from '~shared/string';
+import { stringify } from '~shared/index';
 import { TAB_WIDTH_IN_SPACES } from '../constants';
 import { Logger } from '../core/model';
 import { LogService } from './log.service';

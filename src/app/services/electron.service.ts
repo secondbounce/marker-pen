@@ -6,8 +6,7 @@ import * as fs from 'fs';
 import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 
-import { AppInfo } from '~shared/app-info';
-import { Channel, RendererEvent, RendererRequest, SettingKey } from '~shared/enums';
+import { AppInfo, Channel, RendererEvent, RendererRequest, SettingKey } from '~shared/index';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
 import { LogService } from './log.service';
@@ -77,6 +76,10 @@ export class ElectronService {
   public emitSettingsRequest(settingKey: SettingKey, ...args: any[]): Promise<any> {
     return this._ipcRenderer ? this._ipcRenderer.invoke(Channel.Settings, settingKey, ...args)
                              : Promise.reject(new Error('IpcRenderer has not been instantiated'));
+  }
+
+  public emitSettingsEvent(settingKey: SettingKey, ...args: any[]): void {
+    this._ipcRenderer?.send(Channel.Settings, settingKey, ...args);
   }
 
   public emitRendererRequest(request: RendererRequest, ...args: any[]): Promise<any> {

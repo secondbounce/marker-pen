@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { MenuCommand, MenuId, RendererEvent } from '~shared/enums';
-import { MenuItemState } from '~shared/menu-item-state';
+import { MenuCommand, MenuId, MenuItemState, RendererEvent } from '~shared/index';
 import { Logger, MarkdownFile } from 'src/app/core/model';
 import { StateChangeType, ToolbarControlId } from 'src/app/enums';
 import { ConverterService, ElectronService, LogService, StylesheetService } from 'src/app/services';

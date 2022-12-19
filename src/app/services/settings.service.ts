@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { SettingKey } from '~shared/enums';
-import { Settings } from '~shared/settings';
+import { PdfFormat, SettingKey, Settings } from '~shared/index';
+import { clone } from '../utility';
 import { ElectronService } from './electron.service';
 
 @Injectable({
@@ -25,13 +25,31 @@ export class SettingsService {
   public get availableStylesheets(): string[] {
     this.ensureSettingsInitialized();
 
-    return this._settings.stylesheets;
+    return [...this._settings.stylesheets];
   }
 
   public get defaultStylesheet(): string {
     this.ensureSettingsInitialized();
 
     return this._settings.defaultStylesheet;
+  }
+
+  public get pdfFormat(): PdfFormat {
+    this.ensureSettingsInitialized();
+
+    return this._settings.pdfFormat;
+  }
+
+  public get settings(): Settings {
+    this.ensureSettingsInitialized();
+
+    return clone(this._settings);
+  }
+  public set settings(settings: Settings) {
+    this.ensureSettingsInitialized();
+
+    this._settings = clone(settings);
+    this._electronService.emitSettingsEvent(SettingKey.All, settings);
   }
 
   private ensureSettingsInitialized():void {

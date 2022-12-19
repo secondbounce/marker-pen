@@ -54,6 +54,7 @@ export class Application {
     this.createMainWindow();
 
     ipcMain.handle(Channel.Settings, (_event, ...args) => this._settingsService.handleSettingsRequest(...args));
+    ipcMain.on(Channel.Settings, (_event, ...args) => this._settingsService.handleSettingsEvent(...args));
     ipcMain.handle(Channel.RendererRequest, (_event, ...args) => this.handleRendererRequest(...args));
     ipcMain.on(Channel.RendererEvent, (_event, ...args) => this.handleRendererEvent(...args));
   }
@@ -137,6 +138,13 @@ export class Application {
             label: 'Save as PDF...',
             enabled: false,
             click: (): void => { this.sendMenuCommand(MenuCommand.SaveAsPdf) }
+          },
+          { type: 'separator' },
+          {
+            id: MenuId.Settings,
+            label: 'Settings...',
+            enabled: true,
+            click: (): void => { this.sendMenuCommand(MenuCommand.Settings) }
           },
           { type: 'separator' },
           this.isMac ? {
@@ -270,13 +278,19 @@ export class Application {
 
   private handleRendererRequest = (...args: any[]): Promise<any> => {
     const request: RendererRequest = args[0];
+    let result: any;
 
     switch (request) {
       case RendererRequest.GetStylesheet: {
         const [, filepath] = args;
         const stylesheet: string = this._stylesheetService.getStylesheet(filepath);
-        return Promise.resolve(stylesheet);
+        result = stylesheet;
+        break;
       }
+      case RendererRequest.SelectStylesheet:
+        result = this.promptForStylesheetFile();
+        break;
+
       default: {
         const message: string = `Unsupported RendererRequest - ${convertToText(args)}`;
         this._log.error(message);
@@ -284,6 +298,8 @@ export class Application {
         return Promise.reject(new Error(message));
       }
     }
+
+    return Promise.resolve(result);
   };
 
   private handleRendererEvent = (...args: any[]): void => {
@@ -429,6 +445,36 @@ export class Application {
     }
 
     return pdfFilepath;
+  }
+
+  private promptForStylesheetFile(): string | undefined {
+    let filepath: string | undefined;
+
+    if (this._mainWindow) {
+      const filters: FileFilter[] = [
+        { name: 'Stylesheet Files', extensions: ['css'] },
+        { name: 'All Files', extensions: ['*'] }
+      ];
+      const options: OpenDialogSyncOptions = {
+        // title?: string;
+        // defaultPath?: string;
+        // buttonLabel?: string;
+        filters
+        // properties: ['openFile']
+        // message?: string; // mac only
+        // securityScopedBookmarks?: boolean; // mac only
+      };
+      const filepaths: string[] | undefined = dialog.showOpenDialogSync(this._mainWindow, options);
+
+      if (filepaths) {
+        this._log.assert(filepaths.length === 1, 'Multiple files selected from OpenFileDialog');
+        filepath = filepaths[0];
+      }
+    } else {
+      this._log.warn('Main window has not been instantiated');
+    }
+
+    return filepath;
   }
 
   private onElectronActivate = (): void => {

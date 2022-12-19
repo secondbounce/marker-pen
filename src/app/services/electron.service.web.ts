@@ -8,10 +8,7 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 import { firstValueFrom } from 'rxjs';
 
-import { AppInfo } from '~shared/app-info';
-import { DEFAULT_STYLESHEET } from '~shared/constants';
-import { Channel, RendererEvent, RendererRequest, SettingKey } from '~shared/enums';
-import { stringify } from '~shared/string';
+import { AppInfo, Channel, DEFAULT_STYLESHEET, RendererEvent, RendererRequest, SettingKey, Settings, stringify } from '~shared/index';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
 import { LogService } from './log.service';
@@ -35,6 +32,26 @@ export class ElectronService {
   private _appInfo: AppInfo = {
     appName: 'MarkerPen'  /* Default if running in browsers */
   };
+  private _settings: Settings = {
+    stylesheets: [
+      DEFAULT_STYLESHEET,
+      SAMPLE_STYLESHEET_PATH
+    ],
+    defaultStylesheet: DEFAULT_STYLESHEET,
+    pdfFormat: {
+      paperFormat: 'a4',
+      landscape: false,
+      margins: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '20mm',
+        right: '20mm'
+      },
+      displayHeader: false,
+      displayFooter: false
+    }
+  };
+
   private readonly _log: Logger;
 
   constructor(private _httpClient: HttpClient,
@@ -101,13 +118,7 @@ export class ElectronService {
 
       switch (settingKey) {
         case SettingKey.All:
-          result = {
-            stylesheets: [
-              DEFAULT_STYLESHEET,
-              SAMPLE_STYLESHEET_PATH
-            ],
-            defaultStylesheet: DEFAULT_STYLESHEET
-          };
+          result = this._settings;
           break;
 
         default: {
@@ -121,6 +132,26 @@ export class ElectronService {
     }
   }
 
+  public emitSettingsEvent(settingKey: SettingKey, ...args: any[]): void {
+    if (this._ipcRenderer) {
+      this._ipcRenderer?.send(Channel.Settings, settingKey, ...args);
+    } else {
+      this._log.info(`Sending Settings event for '${settingKey}' with args ${stringify(args)} (will not be received though)`);
+
+      switch (settingKey) {
+        case SettingKey.All: {
+          const [settings] = args;
+          this._settings = settings;
+          break;
+        }
+        default: {
+          const message: string = `Unrecognized SettingKey value - ${settingKey}`;
+          this._log.error(message);
+        }
+      }
+    }
+  }
+
   public emitRendererRequest(request: RendererRequest, ...args: any[]): Promise<any> {
     if (this._ipcRenderer) {
       return this._ipcRenderer.invoke(Channel.RendererRequest, request, ...args);
@@ -128,13 +159,6 @@ export class ElectronService {
       let result: Promise<any>;
 
       switch (request) {
-        // case RendererRequest.GetAvailableStylesheets:
-        //   result = Promise.resolve([
-        //     DEFAULT_STYLESHEET,
-        //     SAMPLE_STYLESHEET_PATH
-        //   ]);
-        //   break;
-
         case RendererRequest.GetStylesheet: {
           let [filepath] = args;
 
@@ -148,6 +172,10 @@ export class ElectronService {
                                                        }));
           break;
         }
+        case RendererRequest.SelectStylesheet:
+          result = Promise.resolve('/foo/bar/baz/styles.css');
+          break;
+
         default: {
           const message: string = `Unrecognized RendererRequest value - ${request}`;
           this._log.error(message);
