@@ -1,7 +1,7 @@
 import { AfterContentChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild } from '@angular/core';
 
 import { Logger } from 'src/app/core/model';
-import { LogService } from 'src/app/services';
+import { ConverterService, LogService } from 'src/app/services';
 
 const SCREEN_CSS: string = `
 @media screen {
@@ -28,7 +28,8 @@ export class PreviewComponent implements AfterContentChecked, AfterViewInit {
   private _css: string = '';
   private readonly _log: Logger;
 
-  constructor(logService: LogService) {
+  constructor(private _converterService: ConverterService,
+              logService: LogService) {
     this._log = logService.getLogger('PreviewComponent');
   }
 
@@ -99,11 +100,36 @@ export class PreviewComponent implements AfterContentChecked, AfterViewInit {
       if (doc) {
         doc.open();
         doc.write(this._html);
+        this.appendTitleElement(doc);
         this.appendStyleElements(doc);
         doc.close();
       } else {
         this._log.error('No document available from IFRAME');
       }
+    }
+  }
+
+  private appendTitleElement(doc: Document): void {
+    /* Puppeteer has the facility to include the document title in the PDF's header/footer, so
+      we'll set up the title based on the first H1 heading, as a convenience.
+    */
+    const head: HTMLHeadElement | null = doc.getElementsByTagName('head')
+                                            .item(0);
+
+    if (head !== null) {
+      const headings: HTMLCollectionOf<HTMLHeadingElement> = doc.getElementsByTagName('h1');
+
+      if (headings.length > 0) {
+        const heading: HTMLHeadingElement = headings[0];
+        const title: string = '<title>'
+                            + this._converterService.htmlEncodePlaintext(heading.innerText)
+                            + '</title>';
+        const titleFragment: DocumentFragment = document.createRange()
+                                                        .createContextualFragment(title);
+        head.appendChild(titleFragment);
+      }
+    } else {
+      this._log.error('No HEAD element available in document');
     }
   }
 
