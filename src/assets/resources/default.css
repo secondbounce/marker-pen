@@ -4,8 +4,9 @@ Don't edit this file as it may be overwritten when installing upgrades.  Instead
 another folder and 'register' it (HOW?????????????).
 
 TIPS
-* If you're aiming to print to PDF (or hardcopy), use physical sizes - points, mm, etc - rather
-  than pixel-based sizes to be sure the output looks right.
+* If you're aiming to print to PDF (or hardcopy), use physical sizes - points, mm, etc - for
+  things that need to be a specific size, such as font sizes and margins, rather than pixel-based
+  sizes to be sure the output looks right.
 * Markdown can contain embedded HTML; this is rendered as-is, so you will need to add styles for
   any additional element types that aren't already generated from the markdown.
 */
@@ -21,7 +22,7 @@ TIPS
 
 body {
   font-family: var(--sans-serif-family);
-  font-size: 12pt;
+  font-size: 10pt;
   margin: 0;  /* Important, page margin will be applied externally if/when printed */
 }
 
@@ -33,10 +34,50 @@ h3,
 h4,
 h5,
 h6 {
+  font-weight: normal;
+  margin-inline: 0;
+}
+
+h1 {
+  border-block-end: solid 0.5mm black;
+  font-size: 2em;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.5em;
+  padding-block-end: 0.2em;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.67em;
+}
+
+h3 {
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 0.83em;
+}
+
+h4 {
+  margin-block-start: 1.33em;
+  margin-block-end: 1em;
+}
+
+h5 {
+  font-size: 0.83em;
+  margin-block-start: 1.67em;
+  margin-block-end: 1.33em;
+}
+
+h6 {
+  font-size: 0.67em;
+  margin-block-start: 2.33em;
+  margin-block-end: 1.67em;
 }
 
 /* PARAGRAPHS */
 p {
+  line-height: 1.5;
 }
 
 br {
@@ -44,6 +85,15 @@ br {
 
 /* BLOCK QUOTES */
 blockquote {
+  border-inline-start: solid 2mm #dcdcdc;
+  font-style: italic;
+  margin-inline-start: 0;
+  margin-inline-end: 1.5em;
+  padding-inline-start: 1.5em;
+}
+
+blockquote blockquote {
+  border: none;
 }
 
 /* CODE BLOCKS
@@ -52,10 +102,30 @@ blockquote {
 */
 pre,
 code {
+  background-color: #f6f6f6;
   font-family: var(--mono-family);
+  width: fit-content;
+}
+
+pre {
+  color: #393939;
+  line-height: 1.35;
+  padding: 0.75em;
+}
+
+:not(pre) > code {
+  border: 1px solid #ececec;
+  border-radius: 3px;
+  color: #9b0000;
+  padding: 0.05em 0.1em;
 }
 
 /* LISTS */
+ol,
+ul {
+  padding-inline-start: 2em;
+}
+
 ul {
 }
 
@@ -63,6 +133,7 @@ ol {
 }
 
 li {
+  margin-block: 0.25em;
 }
 
 /* HORIZONTAL RULES */
@@ -71,6 +142,7 @@ hr {
 
 /* LINKS */
 a {
+  text-decoration: none;
 }
 
 /* a[href="https:"]   // needs to be 'starts with' */
@@ -83,4 +155,20 @@ img {
 /* EMPHASIS */
 em,
 strong {
+}
+
+header,
+footer {
+  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  font-size: 6pt;
+  width: 100%;
+}
+
+header {
+  margin-inline-end: 15mm;  /* Header/footer margin seems oddly scaled so 15mm === 20mm page margin - go figure! */
+  text-align: end;
+}
+
+footer {
+  text-align: center;
 }

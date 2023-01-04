@@ -315,9 +315,9 @@ export class Application {
         break;
 
       case RendererEvent.SaveAsPdf: {
-        const [, filepath, html] = args;
+        const [, filepath, html, header, footer] = args;
         if (filepath && html) {
-          this.onSaveAsPdf(filepath, html);
+          this.onSaveAsPdf(filepath, html, header, footer);
         } else {
           this._log.error('\'SaveAsPdf\' renderer event received without filepath/html');
 // TODO: need to display the error message somehow
@@ -400,12 +400,12 @@ export class Application {
     return filepath;
   }
 
-  private onSaveAsPdf(mdFilepath: string, html: string): void {
+  private onSaveAsPdf(mdFilepath: string, html: string, header: string, footer: string): void {
     const pdfFilepath: string | undefined = this.promptForPdfFile(mdFilepath);
 
     if (pdfFilepath) {
       try {
-        this._pdfExportService.export(pdfFilepath, html);
+        this._pdfExportService.export(pdfFilepath, html, header, footer);
       } catch (err) {
 // TODO: need to display the error message somehow
         this._log.error(`Failed to export ${mdFilepath} as PDF`, err);

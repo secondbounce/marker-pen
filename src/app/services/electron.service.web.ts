@@ -47,8 +47,10 @@ export class ElectronService {
         left: '20mm',
         right: '20mm'
       },
-      displayHeader: false,
-      displayFooter: false
+      displayHeader: true,
+      displayFooter: true,
+      headerTemplate: '<header class="title"></header>',
+      footerTemplate: '<footer><span class="pageNumber"></span>/<span class="totalPages"></span></footer>'
     }
   };
 

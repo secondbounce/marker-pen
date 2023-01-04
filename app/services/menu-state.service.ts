@@ -149,7 +149,7 @@ export class MenuStateService {
   }
 
   private getMenuItemState(menuItem: MenuItem): MenuItemState {
-    this._log.assert(typeof(menuItem.id) === 'undefined',
+    this._log.assert(typeof(menuItem.id) !== 'undefined',
                      `Menu item has not been assigned an id - ${convertToText(menuItem)}`);
 
     const state: MenuItemState = {

@@ -1,0 +1,19 @@
+<div class="background"></div>
+<form [formGroup]="this.formGroup" aria-label="Template Editor" role="document" (ngSubmit)="onSubmit()">
+	<details>
+		<summary><svg-icon src="assets/icons/help-circle-outline.svg" title="Toggle help info"></svg-icon></summary>
+		The following values can be injected into HTML elements in the template by adding
+		the corresponding class to the element:
+		<ul>
+			<li><code>date</code> - the formatted print date</li>
+			<li><code>title</code> - the document title</li>
+			<li><code>pageNumber</code> - the current page number</li>
+			<li><code>totalPages</code> - the total pages in the document</li>
+		</ul>
+	</details>
+	<textarea formControlName="editor" rows="3"></textarea>
+	<footer class="form-actions">
+		<button type="submit">Save</button>
+		<button type="button" (click)="onClickCancel()">Cancel</button>
+	</footer>
+</form>

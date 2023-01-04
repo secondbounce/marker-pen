@@ -71,6 +71,20 @@ export class PreviewComponent implements AfterContentChecked, AfterViewInit {
     this.refreshPreview();
   }
 
+  public getDocument(): Document | undefined {
+    let doc: Document | undefined;
+
+    if (this._iframe) {
+      /* Binding in the template to the IFRAME's `srcdoc` property doesn't work as the HEAD element
+        is ignored (see https://stackoverflow.com/q/38457662/4591974), so we have to adopt this
+        approach.
+      */
+      doc = this._iframe.contentDocument || this._iframe.contentWindow?.document;
+    }
+
+    return doc;
+  }
+
   public getHtmlContent(): string | undefined {
     let contents: string | undefined;
 

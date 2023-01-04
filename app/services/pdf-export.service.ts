@@ -22,11 +22,13 @@ export class PdfExportService {
     }
   }
 
-  public async export(filepath: string, html: string): Promise<void> {
+  public async export(filepath: string, html: string, header: string, footer: string): Promise<void> {
     const browser: Browser = await this.getBrowser();
     const page: Page = await browser.newPage();
 
     const pdfOptions: PDFOptions = this.getPdfOptions();
+    pdfOptions.headerTemplate = header;
+    pdfOptions.footerTemplate = footer;
     pdfOptions.path = filepath;
 
     await page.setContent(html, { waitUntil: 'networkidle2' });

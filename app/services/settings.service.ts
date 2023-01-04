@@ -37,8 +37,10 @@ const DEFAULT_PDF_FORMAT: PdfFormat = {
     left: '20mm',
     right: '20mm'
   },
-  displayHeader: false,
-  displayFooter: false
+  displayHeader: true,
+  headerTemplate: '<header class="title"></header>',
+  displayFooter: true,
+  footerTemplate: '<footer><span class="pageNumber"></span>/<span class="totalPages"></span></footer>'
 };
 
 export class SettingsService {

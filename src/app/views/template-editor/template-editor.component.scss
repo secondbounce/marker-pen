@@ -1,0 +1,30 @@
+@import 'mixins';
+
+:host {
+  @extend %modal;
+
+  details {
+    margin-block: $form-padding;
+  }
+
+  summary {
+    display: inline-block;
+    list-style: none;
+    line-height: 1;
+    vertical-align: text-top;
+
+    svg-icon {
+      display: inline-block;
+
+      svg {
+        height: 1.5em;
+      }
+    }
+  }
+
+  textarea {
+    font-family: $font-family-mono;
+    margin-block-end: $form-padding;
+    width: 100%;
+  }
+}

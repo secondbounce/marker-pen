@@ -3,10 +3,18 @@
 @import 'mixins';
 
 $toolbar-control-border-radius: 3px;
+$toolbar-button-img-size: 16px;
 
 :host(app-toolbar-button) {
   button {
     border-radius: $toolbar-control-border-radius;
+
+    svg {
+      height: $toolbar-button-img-size;
+      min-height: $toolbar-button-img-size;
+      min-width: $toolbar-button-img-size;
+      width: $toolbar-button-img-size;
+    }
   }
 }
 

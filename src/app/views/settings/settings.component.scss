@@ -78,4 +78,13 @@
       }
     }
   }
+
+  .form-fullwidth {
+    align-items: center;
+    display: flex;
+
+    label {
+      flex-grow: 1;
+    }
+  }
 }

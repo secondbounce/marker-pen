@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { TabPanelsModule } from './tabs/tab-panels/tab-panels.module';
 import { TabstripModule } from './tabs/tabstrip/tabstrip.module';
 import { ToolbarModule } from './ui-components/toolbar/toolbar.module';
+import { TemplateEditorModule } from './views/template-editor/template-editor.module';
 import { MarkdownFileModule } from './views/markdown-file/markdown-file.module';
 import { SettingsModule } from './views/settings/settings.module';
 
@@ -32,6 +33,7 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
         deps: [HttpClient]
       }
     }),
+    TemplateEditorModule,
     MarkdownFileModule,
     SettingsModule,
     TabPanelsModule,
@@ -54,5 +56,6 @@ export class AppModule implements DoBootstrap {
 
     /* Register web components */
     SettingsModule.define(this._injector);
+    TemplateEditorModule.define(this._injector);
   }
 }

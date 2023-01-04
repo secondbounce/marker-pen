@@ -3,8 +3,9 @@ import { FormBuilder } from '@angular/forms';
 
 import { convertToText, DEFAULT_STYLESHEET, PdfFormat, RendererRequest, Settings } from '~shared/index';
 import { Logger } from 'src/app/core/model';
-import { ElectronService, LogService, SettingsService } from 'src/app/services';
-import { ModalComponent } from '../../ui-components';
+import { ElectronService, LogService, ModalService, SettingsService } from 'src/app/services';
+import { ModalComponent, ModalResult } from '../../ui-components';
+import { TemplateEditorComponent } from '../template-editor/template-editor.module';
 
 interface StylesheetOption {
   name: string;
@@ -41,6 +42,7 @@ export class SettingsComponent extends ModalComponent implements OnInit {
 
   constructor(private _settingsService: SettingsService,
               private _electronService: ElectronService,
+              private _modalService: ModalService,
               private _formBuilder: FormBuilder,
               private _cdRef: ChangeDetectorRef,
               logService: LogService) {
@@ -149,6 +151,29 @@ export class SettingsComponent extends ModalComponent implements OnInit {
     } else {
       this._log.error(`'${stylesheet}' is not in available stylesheets ${convertToText(stylesheets)}`);
     }
+  }
+
+  public editHeaderFooter(editHeader: boolean): void {
+    this._modalService.show<TemplateEditorComponent>(TemplateEditorComponent.elementTag,
+                                                         {
+                                                          htmlContent: editHeader ? this._settings.pdfFormat.headerTemplate
+                                                                                  : this._settings.pdfFormat.footerTemplate
+                                                         })
+                      .subscribe({
+                        next: (result: ModalResult) => {
+                          if (result.ok) {
+                            if (editHeader) {
+                              this._settings.pdfFormat.headerTemplate = result.data;
+                            } else {
+                              this._settings.pdfFormat.footerTemplate = result.data;
+                            }
+                          }
+                        },
+                        error: (error: any) => {
+// TODO: need to display the error message somehow
+                          this._log.warn(error);
+                        }
+                      });
   }
 
   public onSubmit(): void {

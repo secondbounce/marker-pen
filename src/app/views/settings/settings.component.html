@@ -71,10 +71,12 @@
 		<div class="form-fullwidth">
 			<input type="checkbox" id="displayHeader" formControlName="displayHeader">
 			<label for="displayHeader">Display header</label>
+			<button type="button" class="" (click)="editHeaderFooter(true)">Edit...</button>
 		</div>
 		<div class="form-fullwidth">
 			<input type="checkbox" id="displayFooter" formControlName="displayFooter">
 			<label for="displayFooter">Display footer</label>
+			<button type="button" class="" (click)="editHeaderFooter(false)">Edit...</button>
 		</div>
 	</section>
 	<footer class="form-actions">
