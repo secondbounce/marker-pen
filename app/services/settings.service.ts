@@ -32,8 +32,8 @@ const DEFAULT_PDF_FORMAT: PdfFormat = {
   paperFormat: 'a4',
   landscape: false,
   margins: {
-    top: '20mm',
-    bottom: '20mm',
+    top: '15mm',
+    bottom: '15mm',
     left: '20mm',
     right: '20mm'
   },

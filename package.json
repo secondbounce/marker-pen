@@ -8,9 +8,15 @@
     "name": "David Geary",
     "email": "david@secondbounce.com"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/secondbounce/marker-pen"
+  },
   "license": "MIT",
-  "keywords": [],
+  "keywords": [
+    "markdown",
+    "pdf"
+  ],
   "main": "app/main.js",
   "private": true,
   "scripts": {
@@ -47,6 +53,7 @@
     "angular-svg-icon": "~14.0.0",
     "dompurify": "~2.4.1",
     "electron-log": "~4.4.8",
+    "highlight.js": "~11.7.0",
     "marked": "~4.2.3",
     "rxjs": "~7.5.7",
     "tslib": "^2.4.0",

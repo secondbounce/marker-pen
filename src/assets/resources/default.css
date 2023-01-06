@@ -1,13 +1,13 @@
 /* Default CSS Styles
 
 Don't edit this file as it may be overwritten when installing upgrades.  Instead, copy it to
-another folder and 'register' it (HOW?????????????).
+another file and/or folder and add it to your 'stylesheet' settings.
 
 TIPS
 * If you're aiming to print to PDF (or hardcopy), use physical sizes - points, mm, etc - for
   things that need to be a specific size, such as font sizes and margins, rather than pixel-based
   sizes to be sure the output looks right.
-* Markdown can contain embedded HTML; this is rendered as-is, so you will need to add styles for
+* Markdown can contain embedded HTML; this is rendered as-is, so you may need to add styles for
   any additional element types that aren't already generated from the markdown.
 */
 
@@ -25,6 +25,7 @@ body {
   font-size: 10pt;
   margin: 0;  /* Important, page margin will be applied externally if/when printed */
 }
+
 
 /* HEADERS
 */
@@ -75,6 +76,7 @@ h6 {
   margin-block-end: 1.67em;
 }
 
+
 /* PARAGRAPHS */
 p {
   line-height: 1.5;
@@ -82,6 +84,7 @@ p {
 
 br {
 }
+
 
 /* BLOCK QUOTES */
 blockquote {
@@ -96,29 +99,6 @@ blockquote blockquote {
   border: none;
 }
 
-/* CODE BLOCKS
-
-      code[class="language-javascript"]
-*/
-pre,
-code {
-  background-color: #f6f6f6;
-  font-family: var(--mono-family);
-  width: fit-content;
-}
-
-pre {
-  color: #393939;
-  line-height: 1.35;
-  padding: 0.75em;
-}
-
-:not(pre) > code {
-  border: 1px solid #ececec;
-  border-radius: 3px;
-  color: #9b0000;
-  padding: 0.05em 0.1em;
-}
 
 /* LISTS */
 ol,
@@ -136,27 +116,47 @@ li {
   margin-block: 0.25em;
 }
 
+
 /* HORIZONTAL RULES */
 hr {
 }
+
 
 /* LINKS */
 a {
   text-decoration: none;
 }
 
-/* a[href="https:"]   // needs to be 'starts with' */
-/* a[href="mailto:"]   // needs to be 'starts with' */
 
 /* IMAGES */
 img {
 }
+
 
 /* EMPHASIS */
 em,
 strong {
 }
 
+
+/* PAGE HEADER/FOOTER
+
+On being exported to PDF, a header and/or footer may be added to each individual
+page, if configured in the settings.  Styles can be applied directly to the
+elements in the header/footer templates, but it is preferable to do so in the
+stylesheet to keep it consistent with the page styling.
+
+To do so, define CSS styles targetting HEADER and FOOTER elements (even if your
+templates do not use them).  These will be extracted during the export and applied
+directly as a `style` attribute to the root/first element in the corresponding
+template.  Because of this, class-based and 'nested' styles, e.g, "header.title" or
+"header div" will not have any effect and are therefore ignored.
+
+Also note that, since this happens externally to the normal page rendering:
+  * no other styling from the stylesheet is inherited, so ALL required styling must
+    be specified
+  * the use of custom CSS variables is not supported
+*/
 header,
 footer {
   font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
@@ -171,4 +171,143 @@ header {
 
 footer {
   text-align: center;
+}
+
+
+
+/* CODE BLOCKS
+
+Note that Markdown has two forms of code block:
+  * inline, created with a single back-tick, which is converted to a <code>
+    element
+  * block-based, usually created with 3 back-ticks, which is converted to a
+    <pre> element containing a <code> element
+
+Code blocks declared with the language are defined with a `class` attribute
+holding the language, for example:
+  ``` javascript
+will be converted to:
+  <pre>
+    <code class="language-javascript">
+*/
+pre,
+code {
+  background-color: #f6f6f6;
+  font-family: var(--mono-family);
+}
+
+pre {
+  border: 1px solid #e2e2e2;
+  border-radius: 2px;
+  color: #393939;
+  line-height: 1.35;
+  padding: 0.75em;
+  white-space: pre-wrap;
+}
+
+:not(pre) > code {
+  border: 1px solid #ececec;
+  border-radius: 3px;
+  padding: 0.05em 0.1em;
+}
+
+:not(pre) > code:not([class^="language-"]) {
+  color: #9b0000;
+}
+
+/* Text within code blocks declared with the language will be styled using the
+highlight.js library (see https://highlightjs.org/ for info).  This library
+provides out-of-the-box themes that can be used here.
+
+Note that only the styles for the specific language elements needs to be used;
+the top-level styles for:
+
+  * pre code.hljs
+  * code.hljs
+  * .hljs
+
+are not required (and will not be applied).
+
+The defaults below are taken from the standard "stackoverflow-light" theme but
+can be replaced, as required.
+*/
+
+.hljs-subst {
+  color: #2f3337
+}
+
+.hljs-comment {
+  color: #656e77
+}
+
+.hljs-attr,
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-section,
+.hljs-selector-tag {
+  color: #015692
+}
+
+.hljs-attribute {
+  color: #803378
+}
+
+.hljs-name,
+.hljs-number,
+.hljs-quote,
+.hljs-selector-id,
+.hljs-template-tag,
+.hljs-type {
+  color: #b75501
+}
+
+.hljs-selector-class {
+  color: #015692
+}
+
+.hljs-link,
+.hljs-regexp,
+.hljs-selector-attr,
+.hljs-string,
+.hljs-symbol,
+.hljs-template-variable,
+.hljs-variable {
+  color: #54790d
+}
+
+.hljs-meta,
+.hljs-selector-pseudo {
+  color: #015692
+}
+
+.hljs-built_in,
+.hljs-literal,
+.hljs-title {
+  color: #b75501
+}
+
+.hljs-bullet,
+.hljs-code {
+  color: #535a60
+}
+
+.hljs-meta .hljs-string {
+  color: #54790d
+}
+
+.hljs-deletion {
+  color: #c02d2e
+}
+
+.hljs-addition {
+  color: #2f6f44
+}
+
+.hljs-emphasis {
+  font-style: italic
+}
+
+.hljs-strong {
+  font-weight: 700
 }

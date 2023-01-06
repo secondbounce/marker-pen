@@ -4,6 +4,7 @@
 import { Injectable } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import * as DOMPurify from 'dompurify';
+import hljs, { HighlightResult } from 'highlight.js';
 import { marked } from 'marked';
 
 import { stringify } from '~shared/index';
@@ -34,7 +35,7 @@ export class ConverterService {
       // gfm: true,
       // headerIds: true,
       // headerPrefix: '',
-      // highlight: undefined,
+      highlight: this.highlightCode,
       // langPrefix: 'language-',
       // mangle: true,
       // pedantic: false,
@@ -181,5 +182,22 @@ export class ConverterService {
     }
 
     return cleanHtml;
+  };
+
+  private highlightCode = (code: string, lang: string): string => {
+    let html: string;
+
+    /* Using 'auto' mode with highlight.js is a bit hit-and-miss - non-obvious code can often end
+      up being assigned a fairly esoteric language that just looks odd.  So we're only going to use
+      highlight.js if a language has been explicitly assigned.
+    */
+    if (lang.length > 0) {
+      const result: HighlightResult = hljs.highlight(code, {language: lang});
+      html = result.value;
+    } else {
+      html = this.plaintextToHtml(code, true);
+    }
+
+    return html;
   };
 }
