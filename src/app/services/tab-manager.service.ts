@@ -2,13 +2,13 @@ import { Injectable, NgZone, Type } from '@angular/core';
 import { Observable, ReplaySubject, Subject, takeUntil } from 'rxjs';
 
 import { MenuCommand } from '~shared/index';
+import { BaseService } from './base.service';
+import { LogService } from './log.service';
 import { ARRAY_LAST_ITEM_INDEX } from '../constants';
 import { StateChange } from '../core/model';
 import { StateChangeType } from '../enums';
 import { TabItem, TabPanel, TabPanelComponent } from '../tabs';
 import { removeFromArray } from '../utility';
-import { BaseService } from './base.service';
-import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'

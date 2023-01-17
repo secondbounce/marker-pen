@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
 import { PdfFormat, SettingKey, Settings } from '~shared/index';
-import { clone } from '../utility';
 import { ElectronService } from './electron.service';
+import { clone } from '../utility';
 
 @Injectable({
   providedIn: 'root'

@@ -7,9 +7,9 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 
 import { AppInfo, Channel, RendererEvent, RendererRequest, SettingKey } from '~shared/index';
+import { LogService } from './log.service';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
-import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'

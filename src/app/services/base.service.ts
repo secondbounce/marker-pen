@@ -2,8 +2,8 @@ import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 
-import { Logger } from '../core/model';
 import { LogService } from './log.service';
+import { Logger } from '../core/model';
 
 @Injectable()
 export abstract class BaseService implements OnDestroy {

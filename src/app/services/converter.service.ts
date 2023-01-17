@@ -8,9 +8,9 @@ import hljs, { HighlightResult } from 'highlight.js';
 import { marked } from 'marked';
 
 import { stringify } from '~shared/index';
+import { LogService } from './log.service';
 import { TAB_WIDTH_IN_SPACES } from '../constants';
 import { Logger } from '../core/model';
-import { LogService } from './log.service';
 
 // TODO: support MD flavours:
 //  * markdown.pl

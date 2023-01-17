@@ -2,7 +2,6 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@a
 import { TranslateService } from '@ngx-translate/core';
 
 import { Channel, MenuCommand, RendererEvent, SAMPLE_MARKDOWN } from '~shared/index';
-import { environment } from '../environments/environment';
 import { Logger, MarkdownFile, StateChange } from './core/model';
 import { StateChangeType, ToolbarControlId } from './enums';
 import { ElectronService, LogService, ModalService, SettingsService, TabManagerService } from './services';
@@ -11,6 +10,7 @@ import { ToolbarComponent, ToolbarControlResult, ToolbarControls, ToolbarControl
 import { getFilenameFromPath } from './utility';
 import { MarkdownFilePage } from './views/markdown-file/markdown-file.module';
 import { SettingsComponent } from './views/settings/settings.module';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',

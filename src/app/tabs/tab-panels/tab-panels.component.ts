@@ -2,10 +2,10 @@ import { Component, ComponentRef, OnDestroy, ViewChild, ViewContainerRef, ViewEn
 import { Observable } from 'rxjs';
 
 import { MenuCommand } from '~shared/index';
+import { TabPanelsDirective } from './tab-panels.directive';
 import { TabManagerService } from '../../services';
 import { TabPanel } from '../tab-panel';
 import { TabPanelComponent } from '../tab-panel.component';
-import { TabPanelsDirective } from './tab-panels.directive';
 
 @Component({
   selector: 'app-tab-panels',

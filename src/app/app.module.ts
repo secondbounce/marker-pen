@@ -10,9 +10,9 @@ import { AppComponent } from './app.component';
 import { TabPanelsModule } from './tabs/tab-panels/tab-panels.module';
 import { TabstripModule } from './tabs/tabstrip/tabstrip.module';
 import { ToolbarModule } from './ui-components/toolbar/toolbar.module';
-import { TemplateEditorModule } from './views/template-editor/template-editor.module';
 import { MarkdownFileModule } from './views/markdown-file/markdown-file.module';
 import { SettingsModule } from './views/settings/settings.module';
+import { TemplateEditorModule } from './views/template-editor/template-editor.module';
 
 // AoT requires an exported function for factories
 // eslint-disable-next-line @typescript-eslint/typedef

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 
 import { RendererRequest } from '~shared/index';
-import { Stylesheet } from '../core/model';
 import { BaseService } from './base.service';
 import { ElectronService } from './electron.service';
 import { LogService } from './log.service';
 import { SettingsService } from './settings.service';
+import { Stylesheet } from '../core/model';
 
 @Injectable({
   providedIn: 'root'

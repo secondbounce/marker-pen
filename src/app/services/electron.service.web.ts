@@ -9,9 +9,9 @@ import { ipcRenderer, webFrame } from 'electron';
 import { firstValueFrom } from 'rxjs';
 
 import { AppInfo, Channel, DEFAULT_STYLESHEET, RendererEvent, RendererRequest, SettingKey, Settings, stringify } from '~shared/index';
+import { LogService } from './log.service';
 import { Logger } from '../core/model';
 import { isElectron } from '../utility';
-import { LogService } from './log.service';
 
 const DEFAULT_STYLESHEET_PATH: string = 'assets/resources/default.css';
 const SAMPLE_STYLESHEET_PATH: string = 'assets/resources/dummy.css';
